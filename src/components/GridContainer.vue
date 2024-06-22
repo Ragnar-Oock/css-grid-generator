@@ -6,7 +6,8 @@
 	import GridHeadRow from "./GridHeadRow.vue";
 	import GridItem from './GridItem.vue';
 	import { ExplicitRowTrackState, ExplicitTrack, GridArea, OneOrMore, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "./grid";
-import { getAreasOnLine } from "../helper/area.helper";
+	import { getAreasOnLine } from "../helper/area.helper";
+	import DevTools from './DevTools.vue';
 
 
 	const columnExplicitTrackList = ref<ExplicitTrackList>([
@@ -34,14 +35,6 @@ import { getAreasOnLine } from "../helper/area.helper";
 		}
 	]);
 
-	const rowFillers = computed(() => {
-		return Array
-			.from({length: rows.value.length -1 }, (_, index) => `${index + 1} / span 1`);
-	})
-
-	const colFillers = computed(() => {
-		return Array.from({length: columnExplicitTrackList.value.length - 2}, (_, index) => `${index + 1} / span 1`);
-	})
 
 	const userRowTracks = computed({
 		get: () => rows.value.map(({lineNamesStart, trackSize, lineNamesEnd}, index) => ({
@@ -116,25 +109,10 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 		<GridHeadRow v-model:explicit-track-list="userRowTracks"/>
 
 		<div class="grid-container">
-			<div class="devtools">
-				<div
-					class="grid-row gap-filler"
-					v-for="filler in rowFillers"
-					:style="{
-						'grid-row': filler
-					}"
-				></div>
-			</div>
-			<div class="devtools">
-				<div
-					class="grid-col gap-filler"
-					v-for="filler in colFillers"
-					:style="{
-						'grid-column': filler
-					}"
-				></div>
-			</div>
-
+			<DevTools
+				:cols="columnExplicitTrackList"
+				:rows="rows"	
+			></DevTools>
 			<GridItem
 				v-for="item in areaItems"
 				:item="item"
