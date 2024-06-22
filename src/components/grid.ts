@@ -1,4 +1,9 @@
 import { InjectionKey, Ref } from "vue";
+import { Color } from "../helper/color.helper";
+
+type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
 
 export type Item = {
 	area: string;
@@ -65,12 +70,15 @@ export type LastExplicitTrack = {
  */
 export type ExplicitTrackList = [ ...(ExplicitTrack)[], LastExplicitTrack ];
 
-export type ExplicitRowTrackObj = {
+export type ExplicitRowTrackState = {
 	lineNamesStart: LineNames | '';
-	areas: string[];
 	trackSize: TrackSize | '';
 	lineNamesEnd: LineNames | '';
 }
+
+export type ExplicitRowTrackObj = Prettify<{
+	areas: string[];
+} & ExplicitRowTrackState>;
 export type ExplicitRowTrack = `${LineNames|''} ${string} ${TrackSize|''} ${LineNames|''}`;
 
 /**
@@ -90,6 +98,9 @@ export type GridTemplate =
 	| ComplexGridTemplate;
 
 
+'. bob bob .'
+'. .   .   .'
+
 /*
 
                  '.    img                img  img  title title            title title' auto [award-start]
@@ -101,3 +112,12 @@ export type GridTemplate =
 export type OneOrMore<T> = [T, ...T[]];
 
 export const containerSymbol = Symbol('container') as InjectionKey<Ref<HTMLElement>>
+
+export type GridArea = {
+	area: string;
+	color: Color,
+	rowStart: number;
+	rowEnd: number;
+	columnStart: number;
+	columnEnd: number;
+}

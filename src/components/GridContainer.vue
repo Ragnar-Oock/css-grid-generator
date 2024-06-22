@@ -5,7 +5,8 @@
 	import GridHeadColumn from "./GridHeadColumn.vue";
 	import GridHeadRow from "./GridHeadRow.vue";
 	import GridItem from './GridItem.vue';
-	import { ExplicitTrack, OneOrMore, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "./grid";
+	import { ExplicitRowTrackState, ExplicitTrack, GridArea, OneOrMore, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "./grid";
+import { getAreasOnLine } from "../helper/area.helper";
 
 
 	const columnExplicitTrackList = ref<ExplicitTrackList>([
@@ -18,30 +19,24 @@
 	]);
 	const userColumnExplicitTrackList = computed(() => columnExplicitTrackList.value.slice(1, length - 1) as OneOrMore<ExplicitTrack>);
 
-	const rowTracks = ref<OneOrMore<ExplicitRowTrackObj>>([
+	const rows = ref<OneOrMore<ExplicitRowTrackState>>([
 		{
 			lineNamesStart: '[boris-start]',
 			trackSize: 'auto',
-			areas: ['.', ...Array.from({length: columnExplicitTrackList.value.length - 2}, ()=> ('labels-column'))],
+			// areas: ['.', ...Array.from({length: columnExplicitTrackList.value.length - 2}, ()=> ('labels-column'))],
 			lineNamesEnd: '[boris-end]'
 		},
 		{
 			lineNamesStart: '',
 			trackSize: 'auto',
-			areas: ['labels-row','.', 'first', 'first', '.'],
-			lineNamesEnd: '',
-		},
-		{
-			lineNamesStart: '',
-			trackSize: 'auto',
-			areas: ['labels-row','bob', 'bob', 'bob', 'bob'],
+			// areas: ['labels-row', 'bob', 'bob', 'bob', 'bob'],
 			lineNamesEnd: '',
 		}
 	]);
 
 	const rowFillers = computed(() => {
 		return Array
-			.from({length: rowTracks.value.length -1 }, (_, index) => `${index + 1} / span 1`);
+			.from({length: rows.value.length -1 }, (_, index) => `${index + 1} / span 1`);
 	})
 
 	const colFillers = computed(() => {
@@ -49,18 +44,17 @@
 	})
 
 	const userRowTracks = computed({
-		get: () => rowTracks.value.slice(1).map(({lineNamesStart, areas, trackSize, lineNamesEnd}) => ({
+		get: () => rows.value.map(({lineNamesStart, trackSize, lineNamesEnd}, index) => ({
 			lineNamesStart,
-			areas: areas.slice(1),
+			areas: getAreasOnLine(areaItems.value, index + 1, columnExplicitTrackList.value.length - 2),
 			trackSize,
 			lineNamesEnd
 		})) as OneOrMore<ExplicitRowTrackObj>,
 		set: newValue => {
-			rowTracks.value = [
-				rowTracks.value[0],
-				...newValue.map(({lineNamesStart, areas, trackSize, lineNamesEnd}) => ({
+			rows.value = [
+				rows.value[0],
+				...newValue.map(({lineNamesStart, trackSize, lineNamesEnd}) => ({
 					lineNamesStart,
-					areas: ['labels-row', ...areas],
 					trackSize,
 					lineNamesEnd
 				})) as OneOrMore<ExplicitRowTrackObj>
@@ -68,8 +62,32 @@
 		}
 	});
 
-	const gridAreas = computed(() => Array.from(new Set(userRowTracks.value.flatMap(({areas}) => areas).filter(area => area !== '.'))));
-	const areaItems = computed(() => gridAreas.value.map(area => ({area, color: getRandomColor()})));
+	const areaItems = ref<GridArea[]>([
+		{
+			area: 'bob',
+			color: getRandomColor(),
+			columnStart: 2,
+			columnEnd: 3,
+			rowStart: 1,
+			rowEnd: 2
+		}
+	]);
+
+	const rowTracks = computed(() => {
+		const tracks: ExplicitRowTrackObj[] = rows.value.map((row, index) => {
+			const areas = getAreasOnLine(areaItems.value, index + 1, columnExplicitTrackList.value.length - 2);
+			areas.unshift('labels-row');
+			return { ...row, areas };
+		});
+		tracks.unshift({
+			lineNamesStart: '',
+			trackSize: 'auto',
+			areas: ['.', ...Array.from({length: columnExplicitTrackList.value.length - 2}, ()=> ('labels-column'))],
+			lineNamesEnd: ''
+		},)
+		return tracks;
+	})
+
 	const template = computed( () => `
 ${rowTracks.value.map(serializeTrack).join('\n')}
 / ${serializeExplicitTrackList(columnExplicitTrackList.value)}
@@ -139,6 +157,7 @@ actual grid-template : {{template}}
 		--gap: .5rem;
 		gap: var(--gap);
 
+		user-select: none;
 	}
 	.grid-container {
 		width: 100%;
