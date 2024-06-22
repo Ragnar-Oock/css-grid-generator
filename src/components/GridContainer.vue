@@ -1,11 +1,11 @@
 <script setup lang="ts">
-	import { computed, ref } from "vue";
+	import { computed, provide, ref } from "vue";
 	import { getRandomColor } from "../helper/color.helper";
 	import { serializeExplicitTrackList, serializeTrack } from "../helper/css-normalize";
 	import GridHeadColumn from "./GridHeadColumn.vue";
 	import GridHeadRow from "./GridHeadRow.vue";
 	import GridItem from './GridItem.vue';
-	import { ExplicitTrack, OneOrMore, type ExplicitRowTrackObj, type ExplicitTrackList } from "./grid";
+	import { ExplicitTrack, OneOrMore, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "./grid";
 
 
 	const columnExplicitTrackList = ref<ExplicitTrackList>([
@@ -28,16 +28,25 @@
 		{
 			lineNamesStart: '',
 			trackSize: 'auto',
-			areas: ['labels-row','first', 'first', '.', '.'],
+			areas: ['labels-row','.', 'first', 'first', '.'],
 			lineNamesEnd: '',
 		},
 		{
-			lineNamesStart: '[a-really-long-line-name-]',
+			lineNamesStart: '',
 			trackSize: 'auto',
 			areas: ['labels-row','bob', 'bob', 'bob', 'bob'],
 			lineNamesEnd: '',
 		}
 	]);
+
+	const rowFillers = computed(() => {
+		return Array
+			.from({length: rowTracks.value.length -1 }, (_, index) => `${index + 1} / span 1`);
+	})
+
+	const colFillers = computed(() => {
+		return Array.from({length: columnExplicitTrackList.value.length - 2}, (_, index) => `${index + 1} / span 1`);
+	})
 
 	const userRowTracks = computed({
 		get: () => rowTracks.value.slice(1).map(({lineNamesStart, areas, trackSize, lineNamesEnd}) => ({
@@ -69,22 +78,46 @@ ${rowTracks.value.map(serializeTrack).join('\n')}
 
 	const userTemplate = computed( () => `
 ${userRowTracks.value.map(serializeTrack).join('\n')}
-/ ${serializeExplicitTrackList(columnExplicitTrackList.value.slice(1, -1) as ExplicitTrackList)}
+/ ${serializeExplicitTrackList(columnExplicitTrackList.value.slice(1) as ExplicitTrackList)}
 	`);
+
+	const container = ref<HTMLElement>();
+
+
+	provide(containerSymbol, container);
 </script>
 
 <template>
 	<div 
+		ref="container"
 		class="grid-wrapper" 
 		:style="{
 			'grid-template': template,
 		}"
 	>
-		
 		<GridHeadColumn :explicit-track-list="userColumnExplicitTrackList"/>
 		<GridHeadRow v-model:explicit-track-list="userRowTracks"/>
 
 		<div class="grid-container">
+			<div class="devtools">
+				<div
+					class="grid-row gap-filler"
+					v-for="filler in rowFillers"
+					:style="{
+						'grid-row': filler
+					}"
+				></div>
+			</div>
+			<div class="devtools">
+				<div
+					class="grid-col gap-filler"
+					v-for="filler in colFillers"
+					:style="{
+						'grid-column': filler
+					}"
+				></div>
+			</div>
+
 			<GridItem
 				v-for="item in areaItems"
 				:item="item"
@@ -96,11 +129,18 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 	<pre class="copiable">
 grid-template: {{ userTemplate }}
 	</pre>
+
+	<pre class="copiable">
+actual grid-template : {{template}}
+	</pre>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 	.grid-wrapper {
 		display: grid;
+		--gap: .5rem;
+		gap: var(--gap);
+
 	}
 	.grid-container {
 		width: 100%;
@@ -109,13 +149,51 @@ grid-template: {{ userTemplate }}
 		border: 1px solid black;
 
 		display: grid;
-		overflow: auto;
+		overflow: hidden;
 		grid-area: 2/2/-1/-1;
 		grid-template-rows: subgrid;
 		grid-template-columns: subgrid;
 
 		// resize: both;
 
+
+		.devtools {
+			display: contents;
+			
+			.grid-row {
+				grid-column: 1 / -1;
+				&::after {
+					inset: 100% 0 calc(var(--gap) * -1) 0;
+				}
+			}
+			.grid-col {
+				grid-row: 1 / -1;
+				&::after {
+					inset: 0 calc(var(--gap) * -1) 0 100%;
+				}
+			}
+
+			.gap-filler {				
+				position: relative;
+			}
+			.gap-filler:not(:last-child)::after {
+					--gap-color-1: #803d93c4;
+					--gap-color-2: transparent;
+					--gradient-size: 20px;
+
+					content: '';
+					position: absolute;
+					border: 1px solid var(--gap-color-1);
+
+					background: linear-gradient(
+						-45deg, 
+						var(--gap-color-1) 5%,
+						var(--gap-color-2) 5%, var(--gap-color-2) 50%,
+						var(--gap-color-1) 50%, var(--gap-color-1) 55%, 
+						var(--gap-color-2) 55%
+					) 0 / var(--gradient-size) var(--gradient-size);
+				}
+		}
 	}
 	.boris{
 		grid-area: boris;

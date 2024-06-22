@@ -1,3 +1,5 @@
+import { InjectionKey, Ref } from "vue";
+
 export type Item = {
 	area: string;
 	color: string;
@@ -97,3 +99,5 @@ export type GridTemplate =
 */
 
 export type OneOrMore<T> = [T, ...T[]];
+
+export const containerSymbol = Symbol('container') as InjectionKey<Ref<HTMLElement>>
