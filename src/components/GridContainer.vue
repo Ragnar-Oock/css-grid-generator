@@ -56,16 +56,15 @@
 			lineNamesEnd
 		})) as OneOrMore<ExplicitRowTrackObj>,
 		set: newValue => {
-			
 			rowTracks.value = [
-			rowTracks.value[0],
-			...newValue.map(({lineNamesStart, areas, trackSize, lineNamesEnd}) => ({
-			lineNamesStart,
-			areas: ['labels-row', ...areas],
-			trackSize,
-			lineNamesEnd
-		})) as OneOrMore<ExplicitRowTrackObj>
-		];
+				rowTracks.value[0],
+				...newValue.map(({lineNamesStart, areas, trackSize, lineNamesEnd}) => ({
+					lineNamesStart,
+					areas: ['labels-row', ...areas],
+					trackSize,
+					lineNamesEnd
+				})) as OneOrMore<ExplicitRowTrackObj>
+			];
 		}
 	});
 
@@ -122,7 +121,6 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 				v-for="item in areaItems"
 				:item="item"
 			/>
-			<div class="boris"></div>
 		</div>
 	</div>
 
@@ -159,6 +157,7 @@ actual grid-template : {{template}}
 
 		.devtools {
 			display: contents;
+			pointer-events: none;
 			
 			.grid-row {
 				grid-column: 1 / -1;

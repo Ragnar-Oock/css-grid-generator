@@ -5,8 +5,15 @@ import { Item, containerSymbol } from './grid';
 	const props = defineProps<{
 		item: Item
 	}>()
+	const handles = [
+	'top-left', 
+	'top-right', 
+	'bottom-left', 
+	'bottom-right'
+	] as const;
 
-	type HandleName = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+	type HandleName = typeof handles[number];
+
 
 	const activeHandle = ref<HandleName|null>(null);
 
@@ -46,7 +53,11 @@ import { Item, containerSymbol } from './grid';
 		containerElement.removeEventListener('dragover', onDragOver);
 		containerElement.removeEventListener('dragend', onDragEnd);
 	})
-	
+
+	function isActive(handleName: HandleName): boolean {
+		return handleName === activeHandle.value;
+	}
+
 </script>
 
 <template>
@@ -59,27 +70,17 @@ import { Item, containerSymbol } from './grid';
 		<span class="area-name">
 			{{ item.area }}
 		</span>
+		
+		<div 
+			v-for="handle in handles"
+			@dragstart="ondragstart($event, handle)"
+			:class="[{
+				active: isActive(handle)
+			}, handle]"
+			draggable="true"
+			class="resize-handle"
+		></div>
 
-		<div 
-			@dragstart="ondragstart($event, 'top-left')"
-			draggable="true"
-			class="resize-handle top left"
-		></div>
-		<div 
-			@dragstart="ondragstart($event, 'top-right')"
-			draggable="true"
-			class="resize-handle top right"
-		></div>
-		<div 
-			@dragstart="ondragstart($event, 'bottom-left')"
-			draggable="true"
-			class="resize-handle bottom left"
-		></div>
-		<div 
-			@dragstart="ondragstart($event, 'bottom-right')"
-			draggable="true"
-			class="resize-handle bottom right"
-		></div>
 	</div>
 </template>
 
@@ -117,19 +118,24 @@ import { Item, containerSymbol } from './grid';
 		.resize-handle {
 			background: #fafafa;
 
-			&.top.left {
+			&.active {
+				background-color: lime;
+			}
+	
+
+			&.top-left {
 				grid-area: top-left;
 				border-radius: var(--border-radius) 0;
 			}
-			&.top.right {
+			&.top-right {
 				grid-area: top-right;
 				border-radius: 0 var(--border-radius);
 			}
-			&.bottom.right {
+			&.bottom-right {
 				grid-area: bottom-right;
 				border-radius: var(--border-radius) 0;
 			}
-			&.bottom.left {
+			&.bottom-left {
 				grid-area: bottom-left;
 				border-radius: 0 var(--border-radius);
 			}
