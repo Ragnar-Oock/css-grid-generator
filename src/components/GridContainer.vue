@@ -158,12 +158,17 @@ actual grid-template : {{template}}
 		gap: var(--gap);
 
 		user-select: none;
+		overflow: auto;
+		height: 100%;
+		width: 100%;
+		max-width: 1000px;
+		max-height: 800px;
 	}
 	.grid-container {
 		width: 100%;
 		height: 100%;
 		
-		border: 1px solid black;
+		outline: 1px solid black;
 
 		display: grid;
 		overflow: hidden;

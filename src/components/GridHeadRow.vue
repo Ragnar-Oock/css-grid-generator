@@ -31,5 +31,8 @@ import GridRowHead from './GridRowHead.vue';
 		display: grid;
 		grid-template-rows: subgrid;
 		grid-area: labels-row;
+		position: sticky;
+		left:0;
+		background-color: var(--app-background-color);
 	}
 </style>

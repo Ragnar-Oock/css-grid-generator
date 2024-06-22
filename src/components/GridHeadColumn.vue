@@ -27,5 +27,8 @@ import GridColumnHead from "./GridColumnHead.vue";
 		display: grid;
 		grid-template-columns: subgrid;
 		grid-area: labels-column;
+		position: sticky;
+		top: 0;
+		background-color: var(--app-background-color);
 	}
 </style>
