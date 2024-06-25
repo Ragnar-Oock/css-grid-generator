@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
-import { useMousePosition } from '../stores/mouse-position.store';
+import { Coord, useMousePosition } from '../stores/mouse-position.store';
 import { GridArea, containerSymbol } from './grid';
 
 	const item = defineModel<GridArea>('item', {required: true});
 
-	type Interaction<payload> = {
+	type Interaction<payload = never> = {
 		start: (event: MouseEvent, payload: payload) => void;
 		perform: (event: MouseEvent) => void;
 		finish: (event: MouseEvent) => void;
 	}
 
-	// #region resize
+	// #region resize interaction
 	const handles = [
 		'top-left', 
 		'top-right', 
@@ -20,18 +20,19 @@ import { GridArea, containerSymbol } from './grid';
 		] as const;
 	type HandleName = typeof handles[number];
 
+	const isResizing = ref(false);
 	const activeHandle = ref<HandleName|null>(null);
 	const mousePosition = useMousePosition();
-	const bufferItem = ref<GridArea|null>(null);
 	
 	const resizeInteraction = {
 		start: (_, handleName) => {
+			isResizing.value = true;
 			activeHandle.value = handleName;
 			bufferItem.value = {...item.value};
 		},
 		perform: () => {
 			// is the current item interacted with ?
-			if (activeHandle.value === null || bufferItem.value === null) {
+			if (!isResizing.value || activeHandle.value === null || bufferItem.value === null) {
 				return;
 			}
 
@@ -76,6 +77,7 @@ import { GridArea, containerSymbol } from './grid';
 			}
 		},
 		finish: () => {
+			isResizing.value = false;
 			activeHandle.value = null;
 			if (bufferItem.value !== null) {
 				item.value = bufferItem.value;			
@@ -107,6 +109,59 @@ import { GridArea, containerSymbol } from './grid';
 	}
 	// #endregion
 
+
+	// #region move interaction
+	const mouseStartPosition = ref<Coord|null>(null);
+	const isMoving = ref(false);
+
+	const moveInteraction = {
+		start: () => {
+			isMoving.value = true;
+			mouseStartPosition.value = mousePosition.lastValidPosition;
+			bufferItem.value = {...item.value};
+		},
+		perform: () => {
+			if (!isMoving.value || mouseStartPosition.value === null || bufferItem.value === null) {
+				return;
+			}
+			const delta = {
+				x: mousePosition.lastValidPosition.x - mouseStartPosition.value.x,
+				y: mousePosition.lastValidPosition.y - mouseStartPosition.value.y,
+			};
+
+			const buffer = bufferItem.value;
+
+			buffer.columnStart = item.value.columnStart + delta.x;
+			buffer.columnEnd = item.value.columnEnd + delta.x;
+			buffer.rowStart = item.value.rowStart + delta.y;
+			buffer.rowEnd = item.value.rowEnd + delta.y;
+		},
+		finish: () => {
+			isMoving.value = false;
+			if (bufferItem.value !== null) {
+				item.value = bufferItem.value;			
+			}
+			bufferItem.value = null;			
+		}
+	} as const satisfies Interaction;
+
+	onMounted(() => {
+		const containerElement = container!.value;
+
+		containerElement.addEventListener('mousemove', moveInteraction.perform);
+		document.addEventListener('mouseup', moveInteraction.finish);
+	})
+
+	onUnmounted(() => {
+		const containerElement = container!.value;
+
+		containerElement.removeEventListener('mousemove', moveInteraction.perform);
+		document.removeEventListener('mouseup', moveInteraction.finish);
+	})
+
+	// #region
+	
+	const bufferItem = ref<GridArea|null>(null);
 	const area = computed(() => {
 		const target = bufferItem.value ?? item.value;
 		return `${target.rowStart}/${target.columnStart}/${target.rowEnd}/${target.columnEnd}`;
@@ -120,14 +175,16 @@ import { GridArea, containerSymbol } from './grid';
 		:style="{
 			'--forground': item.color,
 			'grid-area': item.area
-		}">
+		}"
+		@mousedown="moveInteraction.start"
+	>
 		<span class="area-name">
 			{{ item.area }}
 		</span>
 		
 		<div 
 			v-for="handle in handles"
-			@mousedown="resizeInteraction.start($event, handle)"
+			@mousedown.stop="resizeInteraction.start($event, handle)"
 			:class="[{
 				active: isActive(handle)
 			}, handle]"
@@ -136,15 +193,12 @@ import { GridArea, containerSymbol } from './grid';
 	</div>
 	<div 
 		class="grid-item"
-		:class="{
-			active: activeHandle !== null
-		}"
+		v-if="bufferItem !== null"
 		:style="{
 			'--forground': item.color,
 			'grid-area': area
 		}"
-	>		
-	</div>
+	></div>
 </template>
 
 <style scoped lang="scss">
@@ -168,8 +222,6 @@ import { GridArea, containerSymbol } from './grid';
 		--area-name-forground: #333;
 		--area-name-background: #fff;
 
-
-
 		.area-name {
 			grid-area: name;
 			background: var(--area-name-background);
@@ -179,7 +231,7 @@ import { GridArea, containerSymbol } from './grid';
 			place-self: center;
 		}
 
-		--handle-size: 15px;
+		--handle-size: minmax(auto, 15px);
 		.resize-handle {
 			background: #fafafa;
 
@@ -208,21 +260,6 @@ import { GridArea, containerSymbol } from './grid';
 	}
 	.grid-item{
 		pointer-events: none;
-		&.active {
-			// background-color: color-mix(in hsl shorter hue, var(--forground) 15%, transparent 85%);
-
-			border: 2px solid red;
-		}
+		border: 2px solid red;
 	}
 </style>
-
-<!-- 
-if top left on the left of col end
-  update colstart
-if top left on the right of col end
-  update colend
-if top left above rowend
-  update rowstart
-if top left belore rowend
-	update rowend
--->
