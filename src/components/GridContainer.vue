@@ -5,10 +5,37 @@
 	import GridHeadColumn from "./GridHeadColumn.vue";
 	import GridHeadRow from "./GridHeadRow.vue";
 	import GridItem from './GridItem.vue';
-	import { ExplicitRowTrackState, ExplicitTrack, GridArea, OneOrMore, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "./grid";
+	import { ExplicitRowTrackState, ExplicitTrack, GridArea, Item, OneOrMore, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "./grid";
 	import { getAreasOnLine } from "../helper/area.helper";
 	import DevTools from './DevTools.vue';
+	import { useMousePosition } from "../stores/mouse-position.store";
 
+
+	// #region areas
+
+	const areaItems = ref<GridArea[]>([
+		{
+			area: 'bob',
+			color: getRandomColor(),
+			columnStart: 2,
+			columnEnd: 3,
+			rowStart: 1,
+			rowEnd: 2
+		}
+	]);
+
+	function updateItem(newItem: GridArea, oldItem: GridArea): void {
+		const index = areaItems.value.findIndex(({area}) => area === oldItem.area)
+		if (index === -1) {
+			return;
+		}
+
+		areaItems.value[index] = newItem;
+	}
+
+	// #endregion
+
+	// #region columns
 
 	const columnExplicitTrackList = ref<ExplicitTrackList>([
 		{trackSize: 'auto'},
@@ -19,6 +46,10 @@
 		{trackSize: '', lineNames: '[boris-end]'}
 	]);
 	const userColumnExplicitTrackList = computed(() => columnExplicitTrackList.value.slice(1, length - 1) as OneOrMore<ExplicitTrack>);
+
+	// #endregion
+	
+	// #region rows
 
 	const rows = ref<OneOrMore<ExplicitRowTrackState>>([
 		{
@@ -32,9 +63,35 @@
 			trackSize: 'auto',
 			// areas: ['labels-row', 'bob', 'bob', 'bob', 'bob'],
 			lineNamesEnd: '',
+		},
+		{
+			lineNamesStart: '',
+			trackSize: 'auto',
+			// areas: ['labels-row', 'bob', 'bob', 'bob', 'bob'],
+			lineNamesEnd: '',
+		},
+		{
+			lineNamesStart: '',
+			trackSize: 'auto',
+			// areas: ['labels-row', 'bob', 'bob', 'bob', 'bob'],
+			lineNamesEnd: '',
 		}
 	]);
 
+	const rowTracks = computed(() => {
+		const tracks: ExplicitRowTrackObj[] = rows.value.map((row, index) => {
+			const areas = getAreasOnLine(areaItems.value, index + 1, columnExplicitTrackList.value.length - 2);
+			areas.unshift('labels-row');
+			return { ...row, areas };
+		});
+		tracks.unshift({
+			lineNamesStart: '',
+			trackSize: 'auto',
+			areas: ['.', ...Array.from({length: columnExplicitTrackList.value.length - 2}, ()=> ('labels-column'))],
+			lineNamesEnd: ''
+		},)
+		return tracks;
+	})
 
 	const userRowTracks = computed({
 		get: () => rows.value.map(({lineNamesStart, trackSize, lineNamesEnd}, index) => ({
@@ -55,31 +112,9 @@
 		}
 	});
 
-	const areaItems = ref<GridArea[]>([
-		{
-			area: 'bob',
-			color: getRandomColor(),
-			columnStart: 2,
-			columnEnd: 3,
-			rowStart: 1,
-			rowEnd: 2
-		}
-	]);
+	// #endregion
 
-	const rowTracks = computed(() => {
-		const tracks: ExplicitRowTrackObj[] = rows.value.map((row, index) => {
-			const areas = getAreasOnLine(areaItems.value, index + 1, columnExplicitTrackList.value.length - 2);
-			areas.unshift('labels-row');
-			return { ...row, areas };
-		});
-		tracks.unshift({
-			lineNamesStart: '',
-			trackSize: 'auto',
-			areas: ['.', ...Array.from({length: columnExplicitTrackList.value.length - 2}, ()=> ('labels-column'))],
-			lineNamesEnd: ''
-		},)
-		return tracks;
-	})
+	// #region templates
 
 	const template = computed( () => `
 ${rowTracks.value.map(serializeTrack).join('\n')}
@@ -91,10 +126,15 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 / ${serializeExplicitTrackList(columnExplicitTrackList.value.slice(1) as ExplicitTrackList)}
 	`);
 
+	// #endregion
+	
+	// #region container
 	const container = ref<HTMLElement>();
-
-
 	provide(containerSymbol, container);
+	// #endregion
+
+	const mousePosition = useMousePosition();
+
 </script>
 
 <template>
@@ -108,6 +148,10 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 		<GridHeadColumn :explicit-track-list="userColumnExplicitTrackList"/>
 		<GridHeadRow v-model:explicit-track-list="userRowTracks"/>
 
+		<div class="mouse-pos">
+			<p>{{ mousePosition.gridCoords }}</p>
+			<p>{{ mousePosition.lastValidPosition }}</p>
+		</div>
 		<div class="grid-container">
 			<DevTools
 				:cols="columnExplicitTrackList"
@@ -116,6 +160,7 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 			<GridItem
 				v-for="item in areaItems"
 				:item="item"
+				@update:item="updateItem($event, item)"
 			/>
 		</div>
 	</div>
@@ -125,7 +170,7 @@ grid-template: {{ userTemplate }}
 	</pre>
 
 	<pre class="copiable">
-actual grid-template : {{template}}
+actual grid-template : {{ template }}
 	</pre>
 </template>
 
@@ -155,49 +200,9 @@ actual grid-template : {{template}}
 		grid-template-columns: subgrid;
 
 		// resize: both;
-
-
-		.devtools {
-			display: contents;
-			pointer-events: none;
-			
-			.grid-row {
-				grid-column: 1 / -1;
-				&::after {
-					inset: 100% 0 calc(var(--gap) * -1) 0;
-				}
-			}
-			.grid-col {
-				grid-row: 1 / -1;
-				&::after {
-					inset: 0 calc(var(--gap) * -1) 0 100%;
-				}
-			}
-
-			.gap-filler {				
-				position: relative;
-			}
-			.gap-filler:not(:last-child)::after {
-					--gap-color-1: #803d93c4;
-					--gap-color-2: transparent;
-					--gradient-size: 20px;
-
-					content: '';
-					position: absolute;
-					border: 1px solid var(--gap-color-1);
-
-					background: linear-gradient(
-						-45deg, 
-						var(--gap-color-1) 5%,
-						var(--gap-color-2) 5%, var(--gap-color-2) 50%,
-						var(--gap-color-1) 50%, var(--gap-color-1) 55%, 
-						var(--gap-color-2) 55%
-					) 0 / var(--gradient-size) var(--gradient-size);
-				}
+		.mouse-pos {
+			grid-area: 1/1/2/2;
 		}
-	}
-	.boris{
-		grid-area: boris;
 	}
 
 	.copiable {

@@ -121,3 +121,7 @@ export type GridArea = {
 	columnStart: number;
 	columnEnd: number;
 }
+export type Track = {
+	domRect: DOMRect;
+	index: number;
+};
