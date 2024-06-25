@@ -22,6 +22,7 @@ A visual editor for making use of the `grid-template` css shorthand.
 - [ ] add unit autocomplete in width/height fields
 - [ ] add validity checks in width/height fields
 - [ ] how to edit overlapping area ?
+- [ ] accessibility https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/grid_role
 
 ## Content
 - [ ] add an explainer on how the `grid-template` shorthand works
