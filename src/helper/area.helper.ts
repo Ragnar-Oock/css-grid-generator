@@ -1,4 +1,6 @@
+import { Coord } from "../stores/mouse-position.store";
 import { GridArea } from "../types/grid.type";
+import { getRandomColor } from "./color.helper";
 
 /**
  * List all the areas present on a given line
@@ -15,3 +17,14 @@ export function getAreasOnLine(areas: GridArea[], lineNumber: number, lineLength
 		});
 }
 
+let newAreaCount = 0;
+export function makeArea({x, y}: Coord): GridArea {
+	return {
+		area: `new-area-${newAreaCount ++}`,
+		color: getRandomColor(),
+		columnStart: x,
+		columnEnd: x + 1,
+		rowStart: y,
+		rowEnd: y + 1,
+	}
+}

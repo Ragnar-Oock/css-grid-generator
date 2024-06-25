@@ -1,15 +1,17 @@
 <script setup lang="ts">
-	import { computed, provide, ref } from "vue";
+	import { Ref, computed, onMounted, onUnmounted, provide, ref } from "vue";
 	import { getRandomColor } from "../helper/color.helper";
 	import { serializeExplicitTrackList, serializeTrack } from "../helper/css-normalize";
 	import GridHeadColumn from "./GridHeadColumn.vue";
 	import GridHeadRow from "./GridHeadRow.vue";
 	import GridItem from './GridItem.vue';
 	import { ExplicitRowTrackState, ExplicitTrack, GridArea, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "../types/grid.type";
-	import { getAreasOnLine } from "../helper/area.helper";
+	import { getAreasOnLine, makeArea } from "../helper/area.helper";
 	import DevTools from './devtools/DevTools.vue';
 	import MousePosition from './devtools/MousePosition.vue';
-import { OneOrMore } from "../types/helper.type";
+	import { OneOrMore } from "../types/helper.type";
+	import { Coord, isSameCoord, isSnappedToGrid, useMousePosition } from "../stores/mouse-position.store";
+	import { Interaction } from "../types/interaction.type";
 
 
 	// #region areas
@@ -131,9 +133,38 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 	
 	// #region container
 	const container = ref<HTMLElement>();
-	provide(containerSymbol, container);
+	provide(containerSymbol, container as Ref<HTMLElement>);
 	// #endregion
 
+	// #region add area interaction
+
+	const mousePosition = useMousePosition();
+
+	let clickStart: Coord | null = null;
+	const addAreaInteraction = {
+		start: () => {
+			if (isSnappedToGrid(mousePosition.gridCoords)) {
+				clickStart = mousePosition.gridCoords;
+			}
+		},
+		finish: () => {
+			if (clickStart !== null && isSameCoord(clickStart, mousePosition.gridCoords)) {
+				areaItems.value.push(makeArea(mousePosition.gridCoords));
+			}
+
+			clickStart = null;
+		}
+	} as const satisfies Interaction;
+
+	onMounted(() => {
+		document.addEventListener('mouseup', addAreaInteraction.finish);
+	})
+
+	onUnmounted(() => {
+		document.removeEventListener('mouseup', addAreaInteraction.finish);
+	})
+
+	// #endregion
 </script>
 
 <template>
@@ -148,7 +179,10 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 		<GridHeadRow v-model:explicit-track-list="userRowTracks"/>
 
 		<MousePosition/>
-		<div class="grid-container">
+		<div 
+			class="grid-container"
+			@mousedown="addAreaInteraction.start"
+		>
 			<DevTools
 				:cols="columnExplicitTrackList"
 				:rows="rows"	
@@ -157,6 +191,7 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 				v-for="item in areaItems"
 				:item="item"
 				@update:item="updateItem($event, item)"
+				@mousedown.stop
 			/>
 		</div>
 	</div>

@@ -32,13 +32,6 @@ export const useMousePosition = defineStore('mouse-position', () => {
 		}		
 	})
 
-	function isSnappedToGrid({x, y}: Coord): boolean {
-		return x !== 0 && y !== 0;
-	}
-	function isInGrid({x, y}: Coord): boolean {
-		return x !== 0 || y !== 0
-	}
-
 	function matchCol(index: number): boolean {
 		return lastValidPosition.value.x === index && isInGrid(gridCoords.value);
 	}
@@ -46,14 +39,23 @@ export const useMousePosition = defineStore('mouse-position', () => {
 		return lastValidPosition.value.y === index && isInGrid(gridCoords.value);
 	}
 
+
 	return {
 		mouse,
 		mouseInGrid,
 		matchCol,
 		matchRow,
 		gridCoords,
-		lastValidPosition,
-		isSnappedToGrid,
-		isInGrid
+		lastValidPosition
 	};
 })
+
+export function isSnappedToGrid({x, y}: Coord): boolean {
+	return x !== 0 && y !== 0;
+}
+export function isInGrid({x, y}: Coord): boolean {
+	return x !== 0 || y !== 0
+}
+export function isSameCoord(coord1: Coord, coord2: Coord): boolean {
+	return coord1.x === coord2.x && coord1.y === coord2.y;
+}

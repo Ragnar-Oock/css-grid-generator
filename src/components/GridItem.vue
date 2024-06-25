@@ -2,14 +2,10 @@
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
 import { Coord, useMousePosition } from '../stores/mouse-position.store';
 import { GridArea, containerSymbol } from '../types/grid.type';
+import { Interaction } from '../types/interaction.type';
 
 	const item = defineModel<GridArea>('item', {required: true});
 
-	type Interaction<payload = never> = {
-		start: (event: MouseEvent, payload: payload) => void;
-		perform: (event: MouseEvent) => void;
-		finish: (event: MouseEvent) => void;
-	}
 
 	// #region resize interaction
 	const handles = [
@@ -171,6 +167,7 @@ import { GridArea, containerSymbol } from '../types/grid.type';
 
 <template>
 	<div 
+		v-bind="$attrs"
 		class="grid-area"
 		:style="{
 			'--forground': item.color,
