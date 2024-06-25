@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { inject, onMounted, onUnmounted, ref } from 'vue';
-import { Item, containerSymbol } from './grid';
+import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
+import { GridArea, containerSymbol } from './grid';
+import { Coord, useMousePosition } from '../stores/mouse-position.store';
 
-	const props = defineProps<{
-		item: Item
-	}>()
+	const item = defineModel<GridArea>('item', {required: true});
 	const handles = [
 	'top-left', 
 	'top-right', 
@@ -17,24 +16,56 @@ import { Item, containerSymbol } from './grid';
 
 	const activeHandle = ref<HandleName|null>(null);
 
-	function ondragstart(event: DragEvent, handleName: HandleName): void {
+	function onMouseDown(event: MouseEvent, handleName: HandleName): void {
 		activeHandle.value = handleName;
 		console.log(`start : ${handleName}`);
+		bufferItem.value = {...item.value};
 	}
 
-	function onDragOver(event: DragEvent): void {
+
+	const mousePosition = useMousePosition();
+
+	const bufferItem = ref<GridArea|null>(null);
+	
+	function onMouseMove(event: MouseEvent): void {
 		// is the current item interacted with ?
-		if (activeHandle.value === null) {
+		if (activeHandle.value === null || bufferItem.value === null) {
 			return;
 		}
 
-		console.log(`over : ${activeHandle.value}`);
+		const {x, y} = mousePosition.lastValidPosition;
+		const {rowStart, rowEnd, columnStart, columnEnd} = item.value;
+		const buffer = bufferItem.value;
+
+
+		switch (activeHandle.value) {
+			case 'top-left':
+				if (x < columnEnd) {
+					buffer.columnStart = x;
+				}
+				if (columnEnd < x + 1) {
+					buffer.columnEnd = x + 1;
+				}				
+				if (y < rowEnd) {
+					buffer.rowStart = y;
+				}
+				if (rowEnd < y + 1) {
+					buffer.rowEnd = y + 1;
+				}
+				break;
+		
+			default:
+				break;
+		}
+		
 	}
 
-	function onDragEnd(event: DragEvent) {
+	function onMouseUp(event: MouseEvent) {
 		activeHandle.value = null;
-		console.log(`end : ${activeHandle.value}`);
-		
+		if (bufferItem.value !== null) {
+			item.value = bufferItem.value;			
+		}
+		bufferItem.value = null;		
 	}
 
 	const container = inject(containerSymbol);
@@ -42,27 +73,32 @@ import { Item, containerSymbol } from './grid';
 	onMounted(() => {
 		const containerElement = container!.value;
 
-		containerElement.addEventListener('dragover', onDragOver);
-		containerElement.addEventListener('dragend', onDragEnd)
+		containerElement.addEventListener('mousemove', onMouseMove);
+		document.addEventListener('mouseup', onMouseUp);
 		
 	})
 
 	onUnmounted(() => {
 		const containerElement = container!.value;
 
-		containerElement.removeEventListener('dragover', onDragOver);
-		containerElement.removeEventListener('dragend', onDragEnd);
+		containerElement.removeEventListener('mousemove', onMouseMove);
+		document.removeEventListener('mouseup', onMouseUp);
 	})
 
 	function isActive(handleName: HandleName): boolean {
 		return handleName === activeHandle.value;
 	}
 
+	const area = computed(() => {
+		const target = bufferItem.value ?? item.value;
+		return `${target.rowStart}/${target.columnStart}/${target.rowEnd}/${target.columnEnd}`;
+	});
+
 </script>
 
 <template>
 	<div 
-		class="grid-item"
+		class="grid-area"
 		:style="{
 			'--forground': item.color,
 			'grid-area': item.area
@@ -73,19 +109,28 @@ import { Item, containerSymbol } from './grid';
 		
 		<div 
 			v-for="handle in handles"
-			@dragstart="ondragstart($event, handle)"
+			@mousedown="onMouseDown($event, handle)"
 			:class="[{
 				active: isActive(handle)
 			}, handle]"
-			draggable="true"
 			class="resize-handle"
 		></div>
-
+	</div>
+	<div 
+		class="grid-item"
+		:class="{
+			active: activeHandle !== null
+		}"
+		:style="{
+			'--forground': item.color,
+			'grid-area': area
+		}"
+	>		
 	</div>
 </template>
 
 <style scoped lang="scss">
-	.grid-item {
+	.grid-area {
 		--border-radius: 4px;
 
 		border: 1px solid color-mix(in srgb, var(--forground) 80%, transparent 20%);
@@ -104,6 +149,8 @@ import { Item, containerSymbol } from './grid';
 
 		--area-name-forground: #333;
 		--area-name-background: #fff;
+
+
 
 		.area-name {
 			grid-area: name;
@@ -141,4 +188,23 @@ import { Item, containerSymbol } from './grid';
 			}
 		}
 	}
+	.grid-item{
+		pointer-events: none;
+		&.active {
+			// background-color: color-mix(in hsl shorter hue, var(--forground) 15%, transparent 85%);
+
+			border: 2px solid red;
+		}
+	}
 </style>
+
+<!-- 
+if top left on the left of col end
+  update colstart
+if top left on the right of col end
+  update colend
+if top left above rowend
+  update rowstart
+if top left belore rowend
+	update rowend
+-->
