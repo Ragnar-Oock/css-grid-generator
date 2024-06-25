@@ -16,7 +16,7 @@ const rowFillers = computed(() => {
 });
 
 const colFillers = computed(() => {
-	return props.cols.slice(2).map((_, index) => index + 1);
+	return props.cols.slice(1).map((_, index) => index + 1);
 });
 
 // #endregion

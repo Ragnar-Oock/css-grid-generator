@@ -1,111 +1,52 @@
 <script setup lang="ts">
 	import { Ref, computed, onMounted, onUnmounted, provide, ref } from "vue";
-	import { getRandomColor } from "../helper/color.helper";
-	import { serializeExplicitTrackList, serializeTrack } from "../helper/css-normalize";
-	import GridHeadColumn from "./GridHeadColumn.vue";
-	import GridHeadRow from "./GridHeadRow.vue";
-	import GridItem from './GridItem.vue';
-	import { ExplicitRowTrackState, ExplicitTrack, GridArea, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "../types/grid.type";
-	import { getAreasOnLine, makeArea } from "../helper/area.helper";
-	import DevTools from './devtools/DevTools.vue';
-	import MousePosition from './devtools/MousePosition.vue';
-	import { OneOrMore } from "../types/helper.type";
-	import { Coord, isSameCoord, isSnappedToGrid, useMousePosition } from "../stores/mouse-position.store";
-	import { Interaction } from "../types/interaction.type";
+import { getAreasOnLine, makeArea } from "../helper/area.helper";
+import { serializeExplicitTrackList, serializeTrack } from "../helper/css-normalize";
+import { useGrid } from "../stores/grid.store";
+import { Coord, isSameCoord, isSnappedToGrid, useMousePosition } from "../stores/mouse-position.store";
+import { containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "../types/grid.type";
+import { OneOrMore } from "../types/helper.type";
+import { Interaction } from "../types/interaction.type";
+import GridHeadColumn from "./GridHeadColumn.vue";
+import GridHeadRow from "./GridHeadRow.vue";
+import GridItem from './GridItem.vue';
+import DevTools from './devtools/DevTools.vue';
+import MousePosition from './devtools/MousePosition.vue';
 
-
-	// #region areas
-
-	const areaItems = ref<GridArea[]>([
-		{
-			area: 'bob',
-			color: getRandomColor(),
-			columnStart: 2,
-			columnEnd: 3,
-			rowStart: 1,
-			rowEnd: 2
-		}
-	]);
-
-	function updateItem(newItem: GridArea, oldItem: GridArea): void {
-		const index = areaItems.value.findIndex(({area}) => area === oldItem.area)
-		if (index === -1) {
-			return;
-		}
-
-		areaItems.value[index] = newItem;
-	}
-
-	// #endregion
+	const grid = useGrid();
 
 	// #region columns
 
-	const columnExplicitTrackList = ref<ExplicitTrackList>([
-		{trackSize: 'auto'},
-		{trackSize: '20%'},
-		{trackSize: '1fr'},
-		{trackSize: '25px'},
-		{trackSize: '20vw', lineNames: '[boris-start]'},
-		{trackSize: '', lineNames: '[boris-end]'}
-	]);
-	const userColumnExplicitTrackList = computed(() => columnExplicitTrackList.value.slice(1, length - 1) as OneOrMore<ExplicitTrack>);
+	const effectiveColumnExplicitTrackList = computed(() => [{ trackSize: 'auto' }, ...grid.columns ] as ExplicitTrackList)
 
 	// #endregion
 	
 	// #region rows
 
-	const rows = ref<OneOrMore<ExplicitRowTrackState>>([
-		{
-			lineNamesStart: '[boris-start]',
-			trackSize: 'auto',
-			// areas: ['.', ...Array.from({length: columnExplicitTrackList.value.length - 2}, ()=> ('labels-column'))],
-			lineNamesEnd: '[boris-end]'
-		},
-		{
-			lineNamesStart: '',
-			trackSize: 'auto',
-			// areas: ['labels-row', 'bob', 'bob', 'bob', 'bob'],
-			lineNamesEnd: '',
-		},
-		{
-			lineNamesStart: '',
-			trackSize: 'auto',
-			// areas: ['labels-row', 'bob', 'bob', 'bob', 'bob'],
-			lineNamesEnd: '',
-		},
-		{
-			lineNamesStart: '',
-			trackSize: 'auto',
-			// areas: ['labels-row', 'bob', 'bob', 'bob', 'bob'],
-			lineNamesEnd: '',
-		}
-	]);
-
 	const rowTracks = computed(() => {
-		const tracks: ExplicitRowTrackObj[] = rows.value.map((row, index) => {
-			const areas = getAreasOnLine(areaItems.value, index + 1, columnExplicitTrackList.value.length - 2);
+		const tracks: ExplicitRowTrackObj[] = grid.rows.map((row, index) => {
+			const areas = getAreasOnLine(grid.areas, index + 1, grid.numberOfColumns);
 			areas.unshift('labels-row');
 			return { ...row, areas };
 		});
 		tracks.unshift({
 			lineNamesStart: '',
 			trackSize: 'auto',
-			areas: ['.', ...Array.from({length: columnExplicitTrackList.value.length - 2}, ()=> ('labels-column'))],
+			areas: ['.', ...Array.from({length: grid.numberOfColumns}, ()=> ('labels-column'))],
 			lineNamesEnd: ''
 		},)
 		return tracks;
 	})
 
 	const userRowTracks = computed({
-		get: () => rows.value.map(({lineNamesStart, trackSize, lineNamesEnd}, index) => ({
+		get: () => grid.rows.map(({lineNamesStart, trackSize, lineNamesEnd}, index) => ({
 			lineNamesStart,
-			areas: getAreasOnLine(areaItems.value, index + 1, columnExplicitTrackList.value.length - 2),
+			areas: getAreasOnLine(grid.areas, index + 1, grid.numberOfColumns),
 			trackSize,
 			lineNamesEnd
 		})) as OneOrMore<ExplicitRowTrackObj>,
 		set: newValue => {
-			rows.value = [
-				rows.value[0],
+			grid.rows = [
 				...newValue.map(({lineNamesStart, trackSize, lineNamesEnd}) => ({
 					lineNamesStart,
 					trackSize,
@@ -121,12 +62,12 @@
 
 	const template = computed( () => `
 ${rowTracks.value.map(serializeTrack).join('\n')}
-/ ${serializeExplicitTrackList(columnExplicitTrackList.value)}
+/ ${serializeExplicitTrackList(effectiveColumnExplicitTrackList.value)}
 	`);
 
 	const userTemplate = computed( () => `
 ${userRowTracks.value.map(serializeTrack).join('\n')}
-/ ${serializeExplicitTrackList(columnExplicitTrackList.value.slice(1) as ExplicitTrackList)}
+/ ${serializeExplicitTrackList(grid.columns.slice(1) as ExplicitTrackList)}
 	`);
 
 	// #endregion
@@ -149,7 +90,7 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 		},
 		finish: () => {
 			if (clickStart !== null && isSameCoord(clickStart, mousePosition.gridCoords)) {
-				areaItems.value.push(makeArea(mousePosition.gridCoords));
+				grid.areas.push(makeArea(mousePosition.gridCoords));
 			}
 
 			clickStart = null;
@@ -175,7 +116,7 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 			'grid-template': template,
 		}"
 	>
-		<GridHeadColumn :explicit-track-list="userColumnExplicitTrackList"/>
+		<GridHeadColumn :explicit-track-list="grid.columns"/>
 		<GridHeadRow v-model:explicit-track-list="userRowTracks"/>
 
 		<MousePosition/>
@@ -184,13 +125,13 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 			@mousedown="addAreaInteraction.start"
 		>
 			<DevTools
-				:cols="columnExplicitTrackList"
-				:rows="rows"	
+				:cols="grid.columns"
+				:rows="grid.rows"	
 			></DevTools>
 			<GridItem
-				v-for="item in areaItems"
+				v-for="item in grid.areas"
 				:item="item"
-				@update:item="updateItem($event, item)"
+				@update:item="grid.updateItem(item.area, $event)"
 				@mousedown.stop
 			/>
 		</div>

@@ -3,9 +3,12 @@ import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
 import { Coord, useMousePosition } from '../stores/mouse-position.store';
 import { GridArea, containerSymbol } from '../types/grid.type';
 import { Interaction } from '../types/interaction.type';
+import { clamp } from '../helper/math.helper';
+import { useGrid } from '../stores/grid.store';
 
 	const item = defineModel<GridArea>('item', {required: true});
 
+	const grid = useGrid();
 
 	// #region resize interaction
 	const handles = [
@@ -127,10 +130,10 @@ import { Interaction } from '../types/interaction.type';
 
 			const buffer = bufferItem.value;
 
-			buffer.columnStart = item.value.columnStart + delta.x;
-			buffer.columnEnd = item.value.columnEnd + delta.x;
-			buffer.rowStart = item.value.rowStart + delta.y;
-			buffer.rowEnd = item.value.rowEnd + delta.y;
+			buffer.columnStart = clamp(1, item.value.columnStart + delta.x, grid.numberOfColumns);
+			buffer.columnEnd = clamp(1, item.value.columnEnd + delta.x, grid.numberOfColumns + 1);
+			buffer.rowStart = clamp(1, item.value.rowStart + delta.y, grid.numberOfRows);
+			buffer.rowEnd = clamp(1, item.value.rowEnd + delta.y, grid.numberOfRows + 1);
 		},
 		finish: () => {
 			isMoving.value = false;

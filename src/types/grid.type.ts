@@ -1,7 +1,7 @@
 import { InjectionKey, Ref } from "vue";
 import { Color } from "../helper/color.helper";
 import * as CSS from './css.type';
-import { Prettify } from "./helper.type";
+import { OneOrMore, Prettify } from "./helper.type";
 
 export type Item = {
 	area: string;
@@ -54,7 +54,7 @@ export type ExplicitTrack = {
 
 export type LastExplicitTrack = {
 	lineNames?: LineNames;
-	trackSize: '';
+	trackSize?: undefined;
 }
 /**
  * Formal Syntax
@@ -62,7 +62,7 @@ export type LastExplicitTrack = {
  * <explicit-track-list> = [ <line-names>? <track-size> ]+ <line-names>?  
  * ```
  */
-export type ExplicitTrackList = [ ...(ExplicitTrack)[], LastExplicitTrack ];
+export type ExplicitTrackList = [ ...OneOrMore<ExplicitTrack>, LastExplicitTrack ];
 
 export type ExplicitRowTrackState = {
 	lineNamesStart: LineNames | '';
@@ -70,9 +70,7 @@ export type ExplicitRowTrackState = {
 	lineNamesEnd: LineNames | '';
 }
 
-export type ExplicitRowTrackObj = Prettify<{
-	areas: string[];
-} & ExplicitRowTrackState>;
+export type ExplicitRowTrackObj = Prettify<{ areas: string[] } & ExplicitRowTrackState>;
 export type ExplicitRowTrack = `${LineNames|''} ${string} ${TrackSize|''} ${LineNames|''}`;
 
 /**

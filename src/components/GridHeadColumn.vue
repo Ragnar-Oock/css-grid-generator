@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import { ExplicitTrack } from '../types/grid.type';
-import { OneOrMore } from '../types/helper.type';
+import { computed } from 'vue';
+import { ExplicitTrackList } from '../types/grid.type';
 import GridColumnHead from "./GridColumnHead.vue";
 
-	const prop = defineProps<{
-		explicitTrackList: OneOrMore<ExplicitTrack>;
+	const props = defineProps<{
+		explicitTrackList: ExplicitTrackList;
 	}>();
 
+	const editableColumns = computed(() => props.explicitTrackList.slice(0, -1));
  
 </script>
 
 <template>
 	<div class="grid-head-column">
 		<GridColumnHead
-			v-for="(explicitTrack, index) in explicitTrackList"
+			v-for="(explicitTrack, index) in editableColumns"
 			:style="{
 				'grid-column': `${index + 1} / span 1`
 			}"
