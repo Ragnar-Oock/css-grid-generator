@@ -1,29 +1,12 @@
 <script setup lang="ts">
-	import { ref } from "vue";
-import GridContainer from "./components/GridContainer.vue";
-import { Area, Item } from "./components/grid";
-
-	const items = ref<Item[]>([
-		{
-			area: 'area-1',
-			color: '#ff00ff',
-		}
-	]);
-	const template = ref(`
-	'top top top' 64px
-	'. area-1 .' 1fr
-	'bottom bottom bottom' 85px
-	/ 1fr auto 1fr
-	`);
-	const areas = ref<Area[]>([])
-
-
+	import GridContainer from "./components/GridContainer.vue";
+	import SettingsPanel from "./components/settings/SettingsPanel.vue";
 
 </script>
 
 <template>
-	<GridContainer
-	/>
+	<SettingsPanel></SettingsPanel>
+	<GridContainer/>
 </template>
 
 <style scoped>
