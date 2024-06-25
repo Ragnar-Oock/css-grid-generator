@@ -1,23 +1,36 @@
 <script setup lang="ts">
+import { incrementString } from '../helper/incrementable-string.helper';
 import { LineNames, TrackSize } from '../types/grid.type';
 
 
 const name = defineModel<LineNames>('name');
-const width = defineModel<TrackSize>('width');
+const width = defineModel<TrackSize>('width', {required: true});
+
 
 const id = crypto.randomUUID();
+
+function incrementValue(increment: number) {
+	width.value = incrementString(width.value, increment, 0);
+}
+
 </script>
 
 <template>
 	<label :for="id" class="grid-column-head">
 		<span class="track" tabindex="0" :style="{visibility: name ? 'visible' : 'hidden'}">|<span class="tooltip">{{name}}</span></span>
 		<div class="label-text">
-			collumn width 
+			column width 
 		</div>
 		<input 
 			type="text"
 			:id="id"
 			v-model="width"
+			@keydown.up.exact="incrementValue(1)"
+			@keydown.down.exact="incrementValue(-1)"
+			@keydown.up.shift="incrementValue(0.1)"
+			@keydown.down.shift="incrementValue(-0.1)"
+			@keydown.up.alt="incrementValue(10)"
+			@keydown.down.alt="incrementValue(-10)"
 		>
 	</label>
 </template>
