@@ -13,6 +13,7 @@ import SettingToggle from './SettingToggle.vue'
 			<SettingToggle v-model="debug.showGap">Show the grid-gap</SettingToggle>
 			<SettingToggle v-model="debug.showHovered">Show Hovered rows and columns</SettingToggle>
 			<SettingToggle v-model="debug.showMousePosition">Show the resolved mouse position</SettingToggle>
+			<SettingToggle v-model="debug.showKeyPress">Show key presses</SettingToggle>
 		</ul>
 	</div>
 </template>

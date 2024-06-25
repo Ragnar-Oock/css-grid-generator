@@ -7,10 +7,12 @@ export const useDebug = defineStore('debug', () => {
 	const [showGap] = useScopedPersistingRef( 'showGap', true);
 	const [showHovered] = useScopedPersistingRef( 'showHovered', true);
 	const [showMousePosition] = useScopedPersistingRef('showMousePosition', true);
+	const [showKeyPress] = useScopedPersistingRef('showKeyPress', false);
 
 	return {
 		showGap,
 		showHovered,
-		showMousePosition
+		showMousePosition,
+		showKeyPress
 	};
 })
