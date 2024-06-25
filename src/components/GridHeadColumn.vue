@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ExplicitTrack, OneOrMore } from './grid';
+import { ExplicitTrack } from '../types/grid.type';
+import { OneOrMore } from '../types/helper.type';
 import GridColumnHead from "./GridColumnHead.vue";
 
 	const prop = defineProps<{

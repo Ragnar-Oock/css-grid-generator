@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { computed, reactive, ref, watch } from "vue";
-import { Track } from "../components/grid";
+import { Track } from "../types/grid.type";
 
 export type Coord = {x: number, y: number}
 

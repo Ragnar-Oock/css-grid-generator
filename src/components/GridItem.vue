@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
 import { Coord, useMousePosition } from '../stores/mouse-position.store';
-import { GridArea, containerSymbol } from './grid';
+import { GridArea, containerSymbol } from '../types/grid.type';
 
 	const item = defineModel<GridArea>('item', {required: true});
 

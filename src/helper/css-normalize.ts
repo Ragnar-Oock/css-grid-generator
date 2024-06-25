@@ -1,4 +1,4 @@
-import { ExplicitRowTrack, ExplicitRowTrackObj, ExplicitTrackList } from "../components/grid";
+import { ExplicitRowTrack, ExplicitRowTrackObj, ExplicitTrackList } from "../types/grid.type";
 
 export function serializeExplicitTrackList(explicitTrackList: ExplicitTrackList): string {
 	return explicitTrackList

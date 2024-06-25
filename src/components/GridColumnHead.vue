@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LineNames, TrackSize } from './grid';
+import { LineNames, TrackSize } from '../types/grid.type';
 
 
 const name = defineModel<LineNames>('name');

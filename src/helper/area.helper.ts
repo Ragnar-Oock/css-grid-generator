@@ -1,4 +1,4 @@
-import { GridArea } from "../components/grid";
+import { GridArea } from "../types/grid.type";
 
 /**
  * List all the areas present on a given line

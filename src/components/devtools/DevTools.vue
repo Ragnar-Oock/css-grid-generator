@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
-import { ExplicitRowTrackState, ExplicitTrackList, OneOrMore, Track, containerSymbol } from '../grid';
-import { useMousePosition } from '../../stores/mouse-position.store';
 import { useDebug } from '../../stores/debug.store';
+import { useMousePosition } from '../../stores/mouse-position.store';
+import { ExplicitRowTrackState, ExplicitTrackList, Track, containerSymbol } from '../../types/grid.type';
+import { OneOrMore } from '../../types/helper.type';
 
 // #region create the elements
 const props = defineProps<{

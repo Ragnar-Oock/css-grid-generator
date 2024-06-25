@@ -1,9 +1,7 @@
 import { InjectionKey, Ref } from "vue";
 import { Color } from "../helper/color.helper";
-
-type Prettify<T> = {
-  [K in keyof T]: T[K];
-} & {};
+import * as CSS from './css.type';
+import { Prettify } from "./helper.type";
 
 export type Item = {
 	area: string;
@@ -20,13 +18,9 @@ export type GridIndent = {
 	name: string | null;
 }
 export type GridColumn = {
-	width: CSSLenght;
+	width: CSS.Length;
 }
 
-
-export type CSSLenghtUnit = 'px' | 'rem' | 'em'; // list all of them
-export type CSSLenght = `${number}${CSSLenghtUnit}`;
-export type CSSLenghtPercentage = `${number}%`;
 /**
  * Formal Syntax
  * ```
@@ -34,12 +28,12 @@ export type CSSLenghtPercentage = `${number}%`;
  * ```
  * @see {@link https://drafts.csswg.org/css-grid-2/#valdef-grid-template-columns-flex-0 W3C css-grid-2}
  */
-export type CSSFlexFactor = `${number}fr`;
+export type FlexFactor = `${number}fr`;
 
 
-export type InflexibleBreadth = 'auto' | 'min-content' | 'max-content' | `${number}%`;
-export type FitContent = `fit-content(${number}${CSSLenghtUnit})` | `fit-content(${CSSLenghtPercentage})`;
-export type TrackBreadth = CSSLenghtPercentage | CSSFlexFactor | 'min-content' | 'max-content' | 'auto';
+export type InflexibleBreadth = 'auto' | 'min-content' | 'max-content' | CSS.LengthPercentage;
+export type FitContent = `fit-content(${CSS.Length})` | `fit-content(${CSS.LengthPercentage})`;
+export type TrackBreadth = CSS.LengthPercentage | CSS.Length | FlexFactor | 'min-content' | 'max-content' | 'auto';
 export type TrackSize = TrackBreadth | `minmax(${InflexibleBreadth}, ${TrackBreadth})` | FitContent;
 export type LineNames = `[${string}]`;
 
@@ -97,10 +91,6 @@ export type GridTemplate =
 	| SimpleGridTemplate
 	| ComplexGridTemplate;
 
-
-'. bob bob .'
-'. .   .   .'
-
 /*
 
                  '.    img                img  img  title title            title title' auto [award-start]
@@ -109,7 +99,6 @@ export type GridTemplate =
                / 100px 1fr  [award-start] 20px 1fr   1fr   1fr [award-end] 5%    150px  ;
 */
 
-export type OneOrMore<T> = [T, ...T[]];
 
 export const containerSymbol = Symbol('container') as InjectionKey<Ref<HTMLElement>>
 

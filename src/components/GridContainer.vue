@@ -5,10 +5,11 @@
 	import GridHeadColumn from "./GridHeadColumn.vue";
 	import GridHeadRow from "./GridHeadRow.vue";
 	import GridItem from './GridItem.vue';
-	import { ExplicitRowTrackState, ExplicitTrack, GridArea, Item, OneOrMore, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "./grid";
+	import { ExplicitRowTrackState, ExplicitTrack, GridArea, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "../types/grid.type";
 	import { getAreasOnLine } from "../helper/area.helper";
 	import DevTools from './devtools/DevTools.vue';
 	import MousePosition from './devtools/MousePosition.vue';
+import { OneOrMore } from "../types/helper.type";
 
 
 	// #region areas
