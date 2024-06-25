@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
-import { ExplicitRowTrackState, ExplicitTrackList, OneOrMore, Track, containerSymbol } from './grid';
-import { useMousePosition } from '../stores/mouse-position.store';
+import { ExplicitRowTrackState, ExplicitTrackList, OneOrMore, Track, containerSymbol } from '../grid';
+import { useMousePosition } from '../../stores/mouse-position.store';
+import { useDebug } from '../../stores/debug.store';
 
 // #region create the elements
 const props = defineProps<{
@@ -71,29 +72,36 @@ onUnmounted(() => {
 });
 // #endregion
 
+// #region toggle devtools
+const debug = useDebug();
+// #endregion
 </script>
 
 <template>
-	<div class="devtools" ref="devtools">
+	<div
+		class="devtools"
+		:class="{
+			'show-hovered': debug.showHovered,
+			'show-gap': debug.showGap
+			}"
+	>
 		<div 
 			class="grid-row gap-filler"
 		 	v-for="index in rowFillers" 
 		 	:style="{ 'grid-row-start': index }" 
 		 	:class="{
-				active: mousePosition.matchRow(index)
+				hover: mousePosition.matchRow(index)
 			}"
 		 	:data-index="index"
 		  ref="rowElements"
 		></div>
-	</div>
-	<div class="devtools">
 		<div 
 			class="grid-col gap-filler"
 			v-for="index in colFillers"
 			:style="{ 'grid-column-start': index }"
 			:data-index="index"
 			:class="{
-				active: mousePosition.matchCol(index)
+				hover: mousePosition.matchCol(index)
 			}"
 			ref="colElements"
 		></div>
@@ -106,13 +114,6 @@ onUnmounted(() => {
 .devtools {
 	display: contents;
 	pointer-events: none;
-
-	.active {
-		outline: 2px solid rgba(223, 13, 58, 0.288);
-		outline-offset: -4px;
-	}
-
-
 	.grid-row {
 		grid-row-end: span 1;
 		grid-column: 1 / -1;
@@ -130,7 +131,14 @@ onUnmounted(() => {
 			inset: 0 calc(var(--gap) * -1) 0 100%;
 		}
 	}
+}
 
+.show-hovered .hover {
+	outline: 2px solid rgba(223, 13, 58, 0.288);
+	outline-offset: -4px;
+}
+
+.show-gap {
 	.gap-filler {
 		position: relative;
 	}

@@ -7,8 +7,8 @@
 	import GridItem from './GridItem.vue';
 	import { ExplicitRowTrackState, ExplicitTrack, GridArea, Item, OneOrMore, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "./grid";
 	import { getAreasOnLine } from "../helper/area.helper";
-	import DevTools from './DevTools.vue';
-	import { useMousePosition } from "../stores/mouse-position.store";
+	import DevTools from './devtools/DevTools.vue';
+	import MousePosition from './devtools/MousePosition.vue';
 
 
 	// #region areas
@@ -133,8 +133,6 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 	provide(containerSymbol, container);
 	// #endregion
 
-	const mousePosition = useMousePosition();
-
 </script>
 
 <template>
@@ -148,10 +146,7 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 		<GridHeadColumn :explicit-track-list="userColumnExplicitTrackList"/>
 		<GridHeadRow v-model:explicit-track-list="userRowTracks"/>
 
-		<div class="mouse-pos">
-			<p>{{ mousePosition.gridCoords }}</p>
-			<p>{{ mousePosition.lastValidPosition }}</p>
-		</div>
+		<MousePosition/>
 		<div class="grid-container">
 			<DevTools
 				:cols="columnExplicitTrackList"
@@ -198,11 +193,6 @@ actual grid-template : {{ template }}
 		grid-area: 2/2/-1/-1;
 		grid-template-rows: subgrid;
 		grid-template-columns: subgrid;
-
-		// resize: both;
-		.mouse-pos {
-			grid-area: 1/1/2/2;
-		}
 	}
 
 	.copiable {
