@@ -18,7 +18,6 @@ import { GridArea, containerSymbol } from './grid';
 
 	function onMouseDown(event: MouseEvent, handleName: HandleName): void {
 		activeHandle.value = handleName;
-		console.log(`start : ${handleName}`);
 		bufferItem.value = {...item.value};
 	}
 
@@ -37,27 +36,43 @@ import { GridArea, containerSymbol } from './grid';
 		const {rowStart, rowEnd, columnStart, columnEnd} = item.value;
 		const buffer = bufferItem.value;
 
-
-		switch (activeHandle.value) {
-			case 'top-left':
-				if (x < columnEnd) {
-					buffer.columnStart = x;
-				}
-				if (columnEnd < x + 1) {
-					buffer.columnEnd = x + 1;
-				}				
-				if (y < rowEnd) {
-					buffer.rowStart = y;
-				}
-				if (rowEnd < y + 1) {
-					buffer.rowEnd = y + 1;
-				}
-				break;
-		
-			default:
-				break;
+		if (activeHandle.value.includes('top')) {
+			if (y < rowEnd) {
+				buffer.rowStart = y;
+			}
+			if (rowEnd <= y + 1) {
+				buffer.rowEnd = y + 1;
+			}
 		}
-		
+
+		if (activeHandle.value.includes('bottom')) {
+			if (y <= rowStart) {
+				buffer.rowStart = y;
+			}
+			if (rowStart < y + 1) {
+				buffer.rowEnd = y + 1;
+			}
+		}
+
+		if (activeHandle.value.includes('left')) {
+			if (x < columnEnd) {
+				buffer.columnStart = x;
+			}
+			if (columnEnd <= x + 1) {
+				buffer.columnEnd = x + 1;
+			}		
+		}
+
+		if (activeHandle.value.includes('right')) {
+			if (x <= columnStart) {
+				buffer.columnStart = x;
+			}
+			if (columnStart < x + 1) {
+				buffer.columnEnd = x + 1;
+			}		
+		}
+
+
 	}
 
 	function onMouseUp(event: MouseEvent) {
