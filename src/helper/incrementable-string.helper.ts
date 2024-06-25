@@ -30,8 +30,6 @@ type SuffixedString<value extends number = number, suffix extends string = strin
 export function incrementString<value extends number = number, suffix extends string = string>(string: SuffixedString<value, suffix>, increment?: number, min?: number, max?: number): SuffixedString<number, suffix>;
 export function incrementString<input extends string>(string: input, increment?: number, min?: number, max?: number): input;
 export function incrementString(string: string, increment = 1, min = Number.NEGATIVE_INFINITY, max = Number.POSITIVE_INFINITY): string {
-	console.log(string, increment);
-	
 	const parsed = parse(string);
 
 	if (parsed === null) {
@@ -45,7 +43,6 @@ export function incrementString(string: string, increment = 1, min = Number.NEGA
 	const newValue = clamp(min, parsed.value + increment, max);
 	const formatedValue = (newValue).toFixed(mantisaLength).replace(/^(\d+\.[1-9]*|)0+$/, '$1').replace(/\.$/, '')
 	
-
 	return `${formatedValue === '' ? 0 : formatedValue}${parsed.suffix}`
 }
 
