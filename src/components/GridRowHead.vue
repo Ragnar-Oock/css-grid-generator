@@ -19,10 +19,12 @@ function incrementValue(increment: number) {
 		<div class="label-text">
 			row height 
 		</div>
-		<input 
+		<input
+			placeholder="auto"
 			type="text"
 			:id="id"
 			v-model="width"
+			:list="'list'+id"
 			@keydown.up.exact="incrementValue(1)"
 			@keydown.down.exact="incrementValue(-1)"
 			@keydown.up.shift="incrementValue(0.1)"
@@ -31,6 +33,18 @@ function incrementValue(increment: number) {
 			@keydown.down.alt="incrementValue(-10)"
 		>
 	</label>
+
+	<datalist 
+		:id="'list'+id"
+	>
+		<option value="auto"></option>
+		<option value="min-content"></option>
+		<option value="max-content"></option>
+		<option value="fit-content()"></option>
+		<option value="minmax()"></option>
+		<option value="var()"></option>
+
+	</datalist>
 </template>
 
 <style scoped lang="scss">

@@ -4,7 +4,7 @@ import { LineNames, TrackSize } from '../types/grid.type';
 
 
 const name = defineModel<LineNames>('name');
-const width = defineModel<TrackSize>('width', {required: true});
+const width = defineModel<TrackSize|''>('width', {required: true});
 
 
 const id = crypto.randomUUID();
@@ -22,6 +22,7 @@ function incrementValue(increment: number) {
 			column width 
 		</div>
 		<input 
+			placeholder="auto"
 			type="text"
 			:id="id"
 			v-model="width"
