@@ -9,7 +9,7 @@ export function getAreasOnLine(areas: GridArea[], lineNumber: number, lineLength
 	return Array
 		.from({length: lineLength}, (_, columnNumber) => {
 			return areas.find((area,) =>
-				area.columnStart <= columnNumber + 1 && columnNumber < area.columnEnd 
+				area.columnStart <= columnNumber + 1 && columnNumber + 1 < area.columnEnd 
 				&& area.rowStart <= lineNumber && lineNumber < area.rowEnd
 			)?.area ?? '.';
 		});
