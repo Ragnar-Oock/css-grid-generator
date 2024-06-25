@@ -39,10 +39,10 @@
 
 	const columnExplicitTrackList = ref<ExplicitTrackList>([
 		{trackSize: 'auto'},
-		{trackSize: 'auto'},
-		{trackSize: 'auto'},
-		{trackSize: 'auto', lineNames: '[boris-start]'},
-		{trackSize: 'auto'},
+		{trackSize: '20%'},
+		{trackSize: '1fr'},
+		{trackSize: '25px'},
+		{trackSize: '20vw', lineNames: '[boris-start]'},
 		{trackSize: '', lineNames: '[boris-end]'}
 	]);
 	const userColumnExplicitTrackList = computed(() => columnExplicitTrackList.value.slice(1, length - 1) as OneOrMore<ExplicitTrack>);
