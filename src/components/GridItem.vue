@@ -4,105 +4,108 @@ import { useMousePosition } from '../stores/mouse-position.store';
 import { GridArea, containerSymbol } from './grid';
 
 	const item = defineModel<GridArea>('item', {required: true});
-	const handles = [
-	'top-left', 
-	'top-right', 
-	'bottom-left', 
-	'bottom-right'
-	] as const;
 
+	type Interaction<payload> = {
+		start: (event: MouseEvent, payload: payload) => void;
+		perform: (event: MouseEvent) => void;
+		finish: (event: MouseEvent) => void;
+	}
+
+	// #region resize
+	const handles = [
+		'top-left', 
+		'top-right', 
+		'bottom-left', 
+		'bottom-right'
+		] as const;
 	type HandleName = typeof handles[number];
 
-
 	const activeHandle = ref<HandleName|null>(null);
-
-	function onMouseDown(event: MouseEvent, handleName: HandleName): void {
-		activeHandle.value = handleName;
-		bufferItem.value = {...item.value};
-	}
-
-
 	const mousePosition = useMousePosition();
-
 	const bufferItem = ref<GridArea|null>(null);
 	
-	function onMouseMove(event: MouseEvent): void {
-		// is the current item interacted with ?
-		if (activeHandle.value === null || bufferItem.value === null) {
-			return;
-		}
-
-		const {x, y} = mousePosition.lastValidPosition;
-		const {rowStart, rowEnd, columnStart, columnEnd} = item.value;
-		const buffer = bufferItem.value;
-
-		if (activeHandle.value.includes('top')) {
-			if (y < rowEnd) {
-				buffer.rowStart = y;
+	const resizeInteraction = {
+		start: (_, handleName) => {
+			activeHandle.value = handleName;
+			bufferItem.value = {...item.value};
+		},
+		perform: () => {
+			// is the current item interacted with ?
+			if (activeHandle.value === null || bufferItem.value === null) {
+				return;
 			}
-			if (rowEnd <= y + 1) {
-				buffer.rowEnd = y + 1;
+
+			const {x, y} = mousePosition.lastValidPosition;
+			const {rowStart, rowEnd, columnStart, columnEnd} = item.value;
+			const buffer = bufferItem.value;
+
+			if (activeHandle.value.includes('top')) {
+				if (y < rowEnd) {
+					buffer.rowStart = y;
+				}
+				if (rowEnd <= y + 1) {
+					buffer.rowEnd = y + 1;
+				}
 			}
-		}
 
-		if (activeHandle.value.includes('bottom')) {
-			if (y <= rowStart) {
-				buffer.rowStart = y;
+			if (activeHandle.value.includes('bottom')) {
+				if (y <= rowStart) {
+					buffer.rowStart = y;
+				}
+				if (rowStart < y + 1) {
+					buffer.rowEnd = y + 1;
+				}
 			}
-			if (rowStart < y + 1) {
-				buffer.rowEnd = y + 1;
+
+			if (activeHandle.value.includes('left')) {
+				if (x < columnEnd) {
+					buffer.columnStart = x;
+				}
+				if (columnEnd <= x + 1) {
+					buffer.columnEnd = x + 1;
+				}		
 			}
-		}
 
-		if (activeHandle.value.includes('left')) {
-			if (x < columnEnd) {
-				buffer.columnStart = x;
+			if (activeHandle.value.includes('right')) {
+				if (x <= columnStart) {
+					buffer.columnStart = x;
+				}
+				if (columnStart < x + 1) {
+					buffer.columnEnd = x + 1;
+				}		
 			}
-			if (columnEnd <= x + 1) {
-				buffer.columnEnd = x + 1;
-			}		
-		}
-
-		if (activeHandle.value.includes('right')) {
-			if (x <= columnStart) {
-				buffer.columnStart = x;
+		},
+		finish: () => {
+			activeHandle.value = null;
+			if (bufferItem.value !== null) {
+				item.value = bufferItem.value;			
 			}
-			if (columnStart < x + 1) {
-				buffer.columnEnd = x + 1;
-			}		
+			bufferItem.value = null;	
 		}
+	} as const satisfies Interaction<HandleName>;
 
-
-	}
-
-	function onMouseUp(event: MouseEvent) {
-		activeHandle.value = null;
-		if (bufferItem.value !== null) {
-			item.value = bufferItem.value;			
-		}
-		bufferItem.value = null;		
-	}
 
 	const container = inject(containerSymbol);
 
 	onMounted(() => {
 		const containerElement = container!.value;
 
-		containerElement.addEventListener('mousemove', onMouseMove);
-		document.addEventListener('mouseup', onMouseUp);
+		containerElement.addEventListener('mousemove', resizeInteraction.perform);
+		document.addEventListener('mouseup', resizeInteraction.finish);
 		
 	})
 
 	onUnmounted(() => {
 		const containerElement = container!.value;
 
-		containerElement.removeEventListener('mousemove', onMouseMove);
-		document.removeEventListener('mouseup', onMouseUp);
+		containerElement.removeEventListener('mousemove', resizeInteraction.perform);
+		document.removeEventListener('mouseup', resizeInteraction.finish);
 	})
 
 	function isActive(handleName: HandleName): boolean {
 		return handleName === activeHandle.value;
 	}
+	// #endregion
 
 	const area = computed(() => {
 		const target = bufferItem.value ?? item.value;
@@ -124,7 +127,7 @@ import { GridArea, containerSymbol } from './grid';
 		
 		<div 
 			v-for="handle in handles"
-			@mousedown="onMouseDown($event, handle)"
+			@mousedown="resizeInteraction.start($event, handle)"
 			:class="[{
 				active: isActive(handle)
 			}, handle]"
