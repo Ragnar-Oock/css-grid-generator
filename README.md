@@ -28,3 +28,15 @@ A visual editor for making use of the `grid-template` css shorthand.
 - [ ] add an explainer on how the `grid-template` shorthand works
 - [ ] add an explainer on how the editor works (maybe avoid that)
 - [ ] logo ?
+
+# Potential names
+- InGrid
+- Grid-itor
+- Gridler
+- Gridient
+- Gridit
+- Griddy
+- Gridiculous
+- Gridlicious
+- Gridposium
+- Gridorium
