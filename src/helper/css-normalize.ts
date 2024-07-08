@@ -1,6 +1,7 @@
-import { ExplicitRowTrack, ExplicitRowTrackObj, ExplicitTrackList } from "../types/grid.type";
+import { ExplicitRowTrack, ExplicitRowTrackObj, ExplicitTrack, TrackSize } from "../types/grid.type";
+import { OneOrMore } from "../types/helper.type";
 
-export function serializeExplicitTrackList(explicitTrackList: ExplicitTrackList): string {
+export function serializeExplicitTrackList(explicitTrackList: OneOrMore<ExplicitTrack>): string {
 	return explicitTrackList
 		.map(({ lineNames, trackSize }, index, { length }) => {
 			if (index === length - 1) {

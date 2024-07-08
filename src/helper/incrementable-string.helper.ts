@@ -1,7 +1,8 @@
 import { clamp } from "./math.helper";
 
 const regexp = /^((-?\d(\.\d)?)+)(\D+)$/;
-function parse(string: string): {value: number, suffix: string, float: string} | null {
+export type ParsedSuffixedString = {value: number, suffix: string, float: string};
+function parse(string: string): ParsedSuffixedString | null {
 	try {
 		const results = regexp.exec(string);
 
@@ -51,3 +52,5 @@ export function decrementString(string: string, increment?: number): string;
 export function decrementString(string: string, decrement = 1): string {
 	return incrementString(string, decrement * -1);
 }
+
+export {parse as parseSuffixedString};

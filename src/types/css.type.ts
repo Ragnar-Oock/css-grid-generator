@@ -20,7 +20,7 @@ export const ViewportRelativeLengthUnit = ViewportSizePrefixes
 	.flatMap(prefix => ViewportUnitSufixes.map(sufix => `${prefix}${sufix}` as const));
 
 /**
- * All allowed CSS units
+ * All allowed CSS units (except `fr` and `%` because they are special)
  */
 export const LenghtUnit = [
 	...AbsoluteLengthUnit,

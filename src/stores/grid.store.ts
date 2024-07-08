@@ -1,9 +1,8 @@
 import { defineStore } from "pinia";
-import { getRandomColor } from "../helper/color.helper";
 import { computed, ref } from "vue";
-import { ExplicitRowTrackObj, ExplicitRowTrackState, ExplicitTrackList, GridArea } from "../types/grid.type";
+import { getRandomColor } from "../helper/color.helper";
+import { ExplicitRowTrackState, ExplicitTrackList, GridArea } from "../types/grid.type";
 import { OneOrMore } from "../types/helper.type";
-import { getAreasOnLine } from "../helper/area.helper";
 
 export const useGrid = defineStore('grid', () => {
 

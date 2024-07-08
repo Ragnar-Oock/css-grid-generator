@@ -33,8 +33,9 @@ export type FlexFactor = `${number}fr`;
 
 export type InflexibleBreadth = 'auto' | 'min-content' | 'max-content' | CSS.LengthPercentage;
 export type FitContent = `fit-content(${CSS.Length})` | `fit-content(${CSS.LengthPercentage})`;
-export type TrackBreadth = CSS.LengthPercentage | CSS.Length | FlexFactor | 'min-content' | 'max-content' | 'auto';
-export type TrackSize = TrackBreadth | `minmax(${InflexibleBreadth}, ${TrackBreadth})` | FitContent;
+export type TrackBreadth = CSS.LengthPercentage | FlexFactor | 'min-content' | 'max-content' | 'auto';
+export type MinMax = `minmax(${InflexibleBreadth}, ${TrackBreadth})`;
+export type TrackSize = TrackBreadth | MinMax | FitContent;
 export type LineNames = `[${string}]`;
 
 export type GridTemplateRows = '';
@@ -49,7 +50,7 @@ export type GridTemplateColumns = '';
 export type SimpleGridTemplate = `${GridTemplateRows} / ${GridTemplateColumns}` ;
 export type ExplicitTrack = {
 	lineNames?: LineNames;
-	trackSize: TrackSize;
+	trackSize: TrackSize | '';
 };
 
 export type LastExplicitTrack = {
