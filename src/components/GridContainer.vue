@@ -4,11 +4,11 @@ import { getAreasOnLine, makeArea } from "../helper/area.helper";
 import { serializeExplicitTrackList, serializeTrack } from "../helper/css-normalize";
 import { useGrid } from "../stores/grid.store";
 import { Coord, isSameCoord, isSnappedToGrid, useMousePosition } from "../stores/mouse-position.store";
-import { containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "../types/grid.type";
+import { ExplicitTrack, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "../types/grid.type";
 import { OneOrMore } from "../types/helper.type";
 import { Interaction } from "../types/interaction.type";
-import GridHeadColumn from "./GridHeadColumn.vue";
-import GridHeadRow from "./GridHeadRow.vue";
+import GridHeadColumn from "./tracks/GridHeadColumn.vue";
+import GridHeadRow from "./tracks/GridHeadRow.vue";
 import GridItem from './GridItem.vue';
 import DevTools from './devtools/DevTools.vue';
 import MousePosition from './devtools/MousePosition.vue';
@@ -17,7 +17,10 @@ import MousePosition from './devtools/MousePosition.vue';
 
 	// #region columns
 
-	const effectiveColumnExplicitTrackList = computed(() => [{ trackSize: 'auto' }, ...grid.columns ] as ExplicitTrackList)
+	const effectiveColumnExplicitTrackList = computed(() => [
+		...grid.columns.slice(0, -1),
+		{lineNames: (grid.columns as ExplicitTrack[]).at(-1)?.lineNames, trackSize: 'auto'}
+	])
 
 	// #endregion
 	
@@ -26,13 +29,13 @@ import MousePosition from './devtools/MousePosition.vue';
 	const rowTracks = computed(() => {
 		const tracks: ExplicitRowTrackObj[] = grid.rows.map((row, index) => {
 			const areas = getAreasOnLine(grid.areas, index + 1, grid.numberOfColumns);
-			areas.unshift('labels-row');
+			areas.push('labels-row');
 			return { ...row, areas };
 		});
-		tracks.unshift({
+		tracks.push({
 			lineNamesStart: '',
 			trackSize: 'auto',
-			areas: ['.', ...Array.from({length: grid.numberOfColumns}, ()=> ('labels-column'))],
+			areas: [...Array.from({length: grid.numberOfColumns}, ()=> ('labels-column')), '.'],
 			lineNamesEnd: ''
 		},)
 		return tracks;
@@ -116,13 +119,10 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 			'grid-template': template,
 		}"
 	>
-		<GridHeadColumn :explicit-track-list="grid.columns"/>
-		<GridHeadRow v-model:explicit-track-list="userRowTracks"/>
-
 		<MousePosition/>
 		<div 
 			class="grid-container"
-			@mousedown="addAreaInteraction.start"
+			@mousedown.exact.left="addAreaInteraction.start"
 		>
 			<DevTools
 				:cols="grid.columns"
@@ -135,6 +135,8 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 				@mousedown.stop
 			/>
 		</div>
+		<GridHeadColumn :explicit-track-list="grid.columns"/>
+		<GridHeadRow v-model:explicit-track-list="userRowTracks"/>
 	</div>
 
 	<pre class="copiable">
@@ -163,11 +165,11 @@ actual grid-template : {{ template }}
 		width: 100%;
 		height: 100%;
 		
-		outline: 1px solid black;
+		// outline: 1px solid black;
 
 		display: grid;
 		overflow: hidden;
-		grid-area: 2/2/-1/-1;
+		grid-area: 1/1/-2/-2;
 		grid-template-rows: subgrid;
 		grid-template-columns: subgrid;
 	}

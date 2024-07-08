@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ExplicitRowTrackObj } from '../types/grid.type';
-import { OneOrMore } from '../types/helper.type';
+import { ExplicitRowTrackObj } from '../../types/grid.type';
+import { OneOrMore } from '../../types/helper.type';
 import GridRowHead from './GridRowHead.vue';
 
 	const explicitTrackList = defineModel<OneOrMore<ExplicitRowTrackObj>>('explicitTrackList', {default: []});

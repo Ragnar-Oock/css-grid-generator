@@ -10,14 +10,12 @@
 </script>
 
 <template>
-	<pre class="mouse-pos" v-if="debug.showMousePosition">
-real : [{{ mousePosition.gridCoords.x }}, {{ mousePosition.gridCoords.y }}]
-valid : [{{ mousePosition.lastValidPosition.x }}, {{ mousePosition.lastValidPosition.y }}]
-	</pre>
+	<pre class="mouse-pos" v-if="debug.showMousePosition">real : [{{ mousePosition.gridCoords.x }}, {{ mousePosition.gridCoords.y }}]
+valid : [{{ mousePosition.lastValidPosition.x }}, {{ mousePosition.lastValidPosition.y }}]</pre>
 </template>
 
 <style scoped lang="scss">
 	.mouse-pos {
-		grid-area: 1/1/2/2;
+		grid-area: -2/-2/-1/-1;
 	}
 </style>

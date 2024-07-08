@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { ExplicitTrackList } from '../types/grid.type';
+import { ExplicitTrack, ExplicitTrackList } from '../../types/grid.type';
 import GridColumnHead from "./GridColumnHead.vue";
+import { OneOrMore } from '../../types/helper.type';
 
 	const props = defineProps<{
 		explicitTrackList: ExplicitTrackList;
 	}>();
 
-	const editableColumns = computed(() => props.explicitTrackList.slice(0, -1));
+	const editableColumns = computed(() => props.explicitTrackList.slice(0, -1) as OneOrMore<ExplicitTrack>);
  
 </script>
 

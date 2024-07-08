@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { incrementString } from '../helper/incrementable-string.helper';
-import { LineNames, TrackSize } from '../types/grid.type';
+import { incrementString } from '../../helper/incrementable-string.helper';
+import { LineNames, TrackSize } from '../../types/grid.type';
+import TrackAutoCompleteList from './TrackAutoCompleteList.vue';
 
 
 const name = defineModel<LineNames>('name');
@@ -32,8 +33,6 @@ function incrementValue(increment: number) {
 			@keydown.up.alt="incrementValue(10)"
 			@keydown.down.alt="incrementValue(-10)"
 		>
-	</label>
-
 	<datalist 
 		:id="'list'+id"
 	>
@@ -45,6 +44,7 @@ function incrementValue(increment: number) {
 		<option value="var()"></option>
 
 	</datalist>
+	</label>
 </template>
 
 <style scoped lang="scss">
