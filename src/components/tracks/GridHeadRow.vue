@@ -17,10 +17,7 @@ import GridRowHead from './GridRowHead.vue';
 <template>
 	<div class="grid-head-row">
 		<GridRowHead
-			v-for="(explicitTrack, index) in explicitTrackList"
-			:style="{
-				'grid-row': `span 1 / ${index + 2}`
-			}"
+			v-for="explicitTrack in explicitTrackList"
 			v-model:width="explicitTrack.trackSize"
 			@update:width="updateTrack()"
 		/>
@@ -31,9 +28,8 @@ import GridRowHead from './GridRowHead.vue';
 	.grid-head-row {
 		display: grid;
 		grid-template-rows: subgrid;
+		grid-template-columns: subgrid;
 		grid-area: labels-row;
-		position: sticky;
-		left:0;
 		background-color: var(--app-background-color);
 	}
 </style>
