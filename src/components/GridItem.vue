@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
+import { clamp } from '../helper/math.helper';
+import { useGrid } from '../stores/grid.store';
 import { Coord, useMousePosition } from '../stores/mouse-position.store';
 import { GridArea, containerSymbol } from '../types/grid.type';
 import { Interaction } from '../types/interaction.type';
-import { clamp } from '../helper/math.helper';
-import { useGrid } from '../stores/grid.store';
 
 	const item = defineModel<GridArea>('item', {required: true});
 
@@ -97,10 +97,8 @@ import { useGrid } from '../stores/grid.store';
 	})
 
 	onUnmounted(() => {
-		const containerElement = container!.value;
-
-		containerElement.removeEventListener('mousemove', resizeInteraction.perform);
-		document.removeEventListener('mouseup', resizeInteraction.finish);
+		container?.value?.removeEventListener('mousemove', resizeInteraction.perform);
+		document?.removeEventListener('mouseup', resizeInteraction.finish);
 	})
 
 	function isActive(handleName: HandleName): boolean {
