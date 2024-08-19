@@ -1,9 +1,9 @@
 import type { CreateSingletonInstance, CreateSingletonProps, Instance, ReferenceElement, Props as TippyOptions } from "tippy.js";
 import tippy, { createSingleton } from "tippy.js";
-import { Directive } from "vue";
-import { Prettify } from "../types/helper.type";
-import { isDefined } from "../helper/type.helper";
 import 'tippy.js/dist/tippy.css';
+import { Directive } from "vue";
+import { isDefined } from "../../helper/type.helper";
+import { Prettify } from "../../types/helper.type";
 
 export type VTippyOptions = Prettify<{
 	/**

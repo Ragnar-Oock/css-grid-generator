@@ -11,6 +11,7 @@ import { Interaction } from '../types/interaction.type';
 	const grid = useGrid();
 
 	// #region resize interaction
+	
 	const handles = [
 		'top-left', 
 		'top-right', 
@@ -104,10 +105,12 @@ import { Interaction } from '../types/interaction.type';
 	function isActive(handleName: HandleName): boolean {
 		return handleName === activeHandle.value;
 	}
+
 	// #endregion
 
 
 	// #region move interaction
+
 	const mouseStartPosition = ref<Coord|null>(null);
 	const isMoving = ref(false);
 
@@ -156,8 +159,22 @@ import { Interaction } from '../types/interaction.type';
 		document.removeEventListener('mouseup', moveInteraction.finish);
 	})
 
-	// #region
+	// #endregion
 	
+	// #region edit name
+
+	const canEdit = ref(false);
+	const editName = ref(item.value.area);
+
+	function edit() {
+		canEdit.value = true;
+	}
+	function freeze() {
+		canEdit.value = false;
+		item.value.area = editName.value.replace(/\s/, '-');
+	}
+	// #endregion
+
 	const bufferItem = ref<GridArea|null>(null);
 	const area = computed(() => {
 		const target = bufferItem.value ?? item.value;
@@ -175,10 +192,24 @@ import { Interaction } from '../types/interaction.type';
 			'grid-area': item.area
 		}"
 		@mousedown="moveInteraction.start"
+		@dblclick="edit"
 	>
-		<span class="area-name">
+		<span class="area-name" v-if="!canEdit">
 			{{ item.area }}
 		</span>
+
+		<form 
+			v-else
+			class="area-name"
+			@submit.prevent="freeze"
+			@keydown.esc="freeze"
+		>
+			<input
+				v-auto-focus
+				v-model="editName"
+				type="text"
+			>
+		</form>
 		
 		<div 
 			v-for="handle in handles"
