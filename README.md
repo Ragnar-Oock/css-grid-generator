@@ -8,8 +8,9 @@ A visual editor for making use of the `grid-template` css shorthand.
 - [x] set rows height
 - [ ] add rows
 - [ ] add columns
-- [ ] add areas
-- [ ] rename areas
+- [x] add areas
+- [ ] add areas when no cell is empty
+- [x] rename areas
 - [x] move areas
 - [x] change areas horizontal and vertical span
 - [ ] being able to change the output to use areas first and track names second
@@ -20,7 +21,7 @@ A visual editor for making use of the `grid-template` css shorthand.
 	- [x] gap fill style
 	- [ ] render tracks 
 - [ ] add unit autocomplete in width/height fields
-- [ ] add validity checks in width/height fields
+- [x] add validity checks in width/height fields
 - [ ] how to edit overlapping area ?
 - [ ] accessibility https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/grid_role
 
