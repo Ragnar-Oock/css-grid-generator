@@ -17,9 +17,20 @@ import MousePosition from './devtools/MousePosition.vue';
 
 	// #region columns
 
-	const effectiveColumnExplicitTrackList = computed(() => [
-		...grid.columns.slice(0, -1),
-		{lineNames: (grid.columns as ExplicitTrack[]).at(-1)?.lineNames, trackSize: 'auto'}
+	const effectiveColumnExplicitTrackList = computed<ExplicitTrackList>(() => [
+		...(grid.columns.slice(0, -1) as OneOrMore<ExplicitTrack>),
+		{
+			lineNames: (grid.columns as ExplicitTrack[]).at(-1)?.lineNames,
+			trackSize: 'var(--input-width)'
+		},
+		{}
+	])
+	
+	const userColumnExplicitTrackList = computed<ExplicitTrackList>(() => [
+		...(grid.columns.slice(0, -1) as OneOrMore<ExplicitTrack>),
+		{
+			lineNames: (grid.columns as ExplicitTrack[]).at(-1)?.lineNames,
+		}
 	])
 
 	// #endregion
@@ -28,7 +39,7 @@ import MousePosition from './devtools/MousePosition.vue';
 
 	const rowTracks = computed(() => {
 		const tracks: ExplicitRowTrackObj[] = grid.rows.map((row, index) => {
-			const areas = getAreasOnLine(grid.areas, index + 1, grid.numberOfColumns);
+			const areas = grid.templateAreas[index]!.map(area => area?.area ?? '.');
 			areas.push('labels-row');
 			return { ...row, areas };
 		});
@@ -37,16 +48,14 @@ import MousePosition from './devtools/MousePosition.vue';
 			trackSize: 'auto',
 			areas: [...Array.from({length: grid.numberOfColumns}, ()=> ('labels-column')), '.'],
 			lineNamesEnd: ''
-		},)
+		})
 		return tracks;
 	})
 
 	const userRowTracks = computed({
-		get: () => grid.rows.map(({lineNamesStart, trackSize, lineNamesEnd}, index) => ({
-			lineNamesStart,
-			areas: getAreasOnLine(grid.areas, index + 1, grid.numberOfColumns),
-			trackSize,
-			lineNamesEnd
+		get: () => grid.rows.map((row, index) => ({
+			...row,
+			areas: grid.templateAreas[index]!.map(area => area?.area ?? '.')
 		})) as OneOrMore<ExplicitRowTrackObj>,
 		set: newValue => {
 			grid.rows = [
@@ -70,7 +79,7 @@ ${rowTracks.value.map(serializeTrack).join('\n')}
 
 	const userTemplate = computed( () => `
 ${userRowTracks.value.map(serializeTrack).join('\n')}
-/ ${serializeExplicitTrackList(grid.columns.slice(1) as ExplicitTrackList)}
+/ ${serializeExplicitTrackList(userColumnExplicitTrackList.value)}
 	`);
 
 	// #endregion
@@ -152,6 +161,7 @@ actual grid-template : {{ template }}
 	.grid-wrapper {
 		display: grid;
 		--gap: .5rem;
+		--input-width: 15ch;
 		gap: var(--gap);
 
 		user-select: none;
@@ -160,6 +170,7 @@ actual grid-template : {{ template }}
 		width: 100%;
 		max-width: 1000px;
 		max-height: 800px;
+		padding: 1rem;
 	}
 	.grid-container {
 		width: 100%;

@@ -10,11 +10,35 @@ import { getRandomColor } from "./color.helper";
 export function getAreasOnLine(areas: GridArea[], lineNumber: number, lineLength: number): string[] {
 	return Array
 		.from({length: lineLength}, (_, columnNumber) => {
-			return areas.find((area,) =>
-				area.columnStart <= columnNumber + 1 && columnNumber + 1 < area.columnEnd 
-				&& area.rowStart <= lineNumber && lineNumber < area.rowEnd
-			)?.area ?? '.';
+			return getAreaByCell(areas, columnNumber, lineNumber)?.area ?? '.';
 		});
+}
+
+/**
+ * check if an area is in a cell or not
+ * @param area area to check
+ * @param columnLineIndex column index of the cell of interest (0 indexed)
+ * @param rowLineIndex row index of the cell of interest (0 indexed)
+ */
+function cellMatcher(area: GridArea, columnLineIndex: number, rowLineIndex: number): boolean {
+	return (
+		area.columnStart <= columnLineIndex + 1 && columnLineIndex + 1 < area.columnEnd 
+		&& area.rowStart <= rowLineIndex + 1  && rowLineIndex + 1 < area.rowEnd
+	)
+}
+
+/**
+ * find the first area that fits a given cell
+ * @param areas list of the areas to search throught
+ * @param columnLineIndex column index of the cell (0 indexed)
+ * @param rowLineIndex row index of the cell (0 indexed)
+ */
+export function getAreaByCell(areas: GridArea[], columnLineIndex: number, rowLineIndex: number): GridArea | null {
+	return areas.find(area => cellMatcher(area, columnLineIndex, rowLineIndex)) ?? null
+}
+
+export function getAllAreasByCell(areas: GridArea[], columnLineIndex: number, rowLineIndex: number): GridArea[] {
+	return areas.filter(area => cellMatcher(area, columnLineIndex, rowLineIndex));
 }
 
 let newAreaCount = 0;
@@ -27,4 +51,7 @@ export function makeArea({x, y}: Coord): GridArea {
 		rowStart: y,
 		rowEnd: y + 1,
 	}
+}
+export function getAreaIndex(area: GridArea, nbCols: number): number {
+	return area.columnStart + (area.rowStart - 1) * nbCols;
 }

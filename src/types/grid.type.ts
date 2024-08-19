@@ -33,7 +33,7 @@ export type FlexFactor = `${number}fr`;
 
 export type InflexibleBreadth = 'auto' | 'min-content' | 'max-content' | CSS.LengthPercentage;
 export type FitContent = `fit-content(${CSS.Length})` | `fit-content(${CSS.LengthPercentage})`;
-export type TrackBreadth = CSS.LengthPercentage | FlexFactor | 'min-content' | 'max-content' | 'auto';
+export type TrackBreadth = CSS.LengthPercentage | FlexFactor | 'min-content' | 'max-content' | 'auto' | CSS.Length;
 export type MinMax = `minmax(${InflexibleBreadth}, ${TrackBreadth})`;
 export type TrackSize = TrackBreadth | MinMax | FitContent;
 export type LineNames = `[${string}]`;
