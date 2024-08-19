@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { isTrackBreadth } from '../../helper/css-validator.helper';
 import { incrementString } from '../../helper/incrementable-string.helper';
 import { TrackSize } from '../../types/grid.type';
+import BorderlessInput from "../inputs/borderless-input.vue";
 
 
 const width = defineModel<TrackSize | ''>('width', {required: true});
@@ -27,7 +28,7 @@ function incrementValue(increment: number) {
 
 <template>
 	<label :for="id" class="grid-row-head">
-		<input
+		<BorderlessInput
 			placeholder="auto"
 			type="text"
 			:id="id"
@@ -40,7 +41,7 @@ function incrementValue(increment: number) {
 			@keydown.down.shift="incrementValue(-0.1)"
 			@keydown.up.alt="incrementValue(10)"
 			@keydown.down.alt="incrementValue(-10)"
-		>
+		/>
 	<datalist 
 		:id="'list'+id"
 	>

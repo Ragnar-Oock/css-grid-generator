@@ -1,44 +1,49 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import { isTrackBreadth } from '../../helper/css-validator.helper';
 import { incrementString } from '../../helper/incrementable-string.helper';
-import { LineNames, TrackSize } from '../../types/grid.type';
+import { TrackSize } from '../../types/grid.type';
 import BorderlessInput from "../inputs/borderless-input.vue";
 
 
-const name = defineModel<LineNames>('name');
 const width = defineModel<TrackSize|''>('width', {required: true});
 
+const validatedModel = computed({
+	get() {
+		return width.value;
+	},
+	set(value) {
+		if (isTrackBreadth(value)) {
+			width.value = value;
+		}
+	}
+})
 
 const id = crypto.randomUUID();
 
 function incrementValue(increment: number) {
-	width.value = incrementString(width.value, increment, 0);
+	validatedModel.value = incrementString(validatedModel.value, increment, 0);
 }
 
 </script>
 
 <template>
 	<div class="column-track">
-		<span 
-			class="name"
-			tabindex="0"
-			:style="{visibility: name ? 'visible' : 'hidden'}"
-			v-tippy="{content: name}"
-			>|</span>
-			<BorderlessInput
-				v-model="width"
-				class="size"
+		<BorderlessInput
+			v-model="validatedModel"
+			class="size"
 
-				placeholder="auto"
-				:id="id"
-				aria-label="column width"
-	
-				@keydown.up.exact="incrementValue(1)"
-				@keydown.down.exact="incrementValue(-1)"
-				@keydown.up.shift="incrementValue(0.1)"
-				@keydown.down.shift="incrementValue(-0.1)"
-				@keydown.up.alt="incrementValue(10)"
-				@keydown.down.alt="incrementValue(-10)"
-			/>
+			placeholder="auto"
+			:id="id"
+			aria-label="column width"
+
+			@keydown.up.exact="incrementValue(1)"
+			@keydown.down.exact="incrementValue(-1)"
+			@keydown.up.shift="incrementValue(0.1)"
+			@keydown.down.shift="incrementValue(-0.1)"
+			@keydown.up.alt="incrementValue(10)"
+			@keydown.down.alt="incrementValue(-10)"
+		/>
 	</div>
 </template>
 

@@ -27,10 +27,16 @@
 		font-family: monospace;
 		color: var(--text-color);
 
+		border-bottom: 1px solid transparent;
+		transition: 300ms ease-in-out;
+		transition-property: color, border-bottom-color;
+		text-align: center;
+
 		&:focus {
 			outline: none;
 			color: var(--input-foregroud-focused);
 			background-color: var(--input-background-focused);
+			border-bottom-color: var(--input-foregroud-focused);
 		}
 	}
 </style>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { ExplicitTrack, ExplicitTrackList } from '../../types/grid.type';
-import GridColumnHead from "./GridColumnHead.vue";
 import { OneOrMore } from '../../types/helper.type';
+import GridColumnHead from "./GridColumnHead.vue";
 
 	const props = defineProps<{
 		explicitTrackList: ExplicitTrackList;
@@ -16,9 +16,6 @@ import { OneOrMore } from '../../types/helper.type';
 	<div class="grid-head-column">
 		<GridColumnHead
 			v-for="(explicitTrack, index) in editableColumns"
-			:style="{
-				'grid-column': `${index + 1} / span 1`
-			}"
 			v-model:name="explicitTrack.lineNames"
 			v-model:width="explicitTrack.trackSize"
 		/>
@@ -28,10 +25,9 @@ import { OneOrMore } from '../../types/helper.type';
 <style scoped lang="scss">
 	.grid-head-column {
 		display: grid;
+		grid-template-rows: subgrid;
 		grid-template-columns: subgrid;
 		grid-area: labels-column;
-		position: sticky;
-		top: 0;
 		background-color: var(--app-background-color);
 	}
 </style>
