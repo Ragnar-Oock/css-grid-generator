@@ -1,14 +1,27 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import { isTrackBreadth } from '../../helper/css-validator.helper';
 import { incrementString } from '../../helper/incrementable-string.helper';
 import { TrackSize } from '../../types/grid.type';
 
 
-const width = defineModel<TrackSize>('width', {required: true});
+const width = defineModel<TrackSize | ''>('width', {required: true});
+
+const validatedModel = computed({
+	get() {
+		return width.value;
+	},
+	set(value) {
+		if (isTrackBreadth(value)) {
+			width.value = value;
+		}
+	}
+})
 
 const id = crypto.randomUUID();
 
 function incrementValue(increment: number) {
-	width.value = incrementString(width.value, increment, 0);
+	validatedModel.value = incrementString(validatedModel.value, increment, 0);
 }
 </script>
 
@@ -18,7 +31,7 @@ function incrementValue(increment: number) {
 			placeholder="auto"
 			type="text"
 			:id="id"
-			v-model="width"
+			v-model="validatedModel"
 			:list="'list'+id"
 			aria-label="row height"
 			@keydown.up.exact="incrementValue(1)"
@@ -36,7 +49,7 @@ function incrementValue(increment: number) {
 		<option value="max-content"></option>
 		<option value="fit-content()"></option>
 		<option value="minmax()"></option>
-		<option value="var()"></option>
+		<option value="var(--)"></option>
 
 	</datalist>
 	</label>
@@ -48,7 +61,7 @@ function incrementValue(increment: number) {
 		grid-template: 
 			'track' auto
 			'input' 1fr
-		/ auto;
+		/ 100%;
 		.label-text {
 			grid-area: label;
 			transition: opacity 300ms ease-in-out;

@@ -21,19 +21,11 @@ export type GridColumn = {
 	width: CSS.Length;
 }
 
-/**
- * Formal Syntax
- * ```
- * <flex [0,∞]>
- * ```
- * @see {@link https://drafts.csswg.org/css-grid-2/#valdef-grid-template-columns-flex-0 W3C css-grid-2}
- */
-export type FlexFactor = `${number}fr`;
 
 
-export type InflexibleBreadth = 'auto' | 'min-content' | 'max-content' | CSS.LengthPercentage;
+export type InflexibleBreadth = CSS.ContentLength | CSS.LengthPercentage;
 export type FitContent = `fit-content(${CSS.Length})` | `fit-content(${CSS.LengthPercentage})`;
-export type TrackBreadth = CSS.LengthPercentage | FlexFactor | 'min-content' | 'max-content' | 'auto' | CSS.Length;
+export type TrackBreadth = CSS.LengthPercentage | CSS.FlexFactor | CSS.ContentLength | CSS.Length;
 export type MinMax = `minmax(${InflexibleBreadth}, ${TrackBreadth})`;
 export type TrackSize = TrackBreadth | MinMax | FitContent | CSS.CustomProp;
 export type LineNames = `[${string}]`;
