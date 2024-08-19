@@ -35,7 +35,7 @@ export type InflexibleBreadth = 'auto' | 'min-content' | 'max-content' | CSS.Len
 export type FitContent = `fit-content(${CSS.Length})` | `fit-content(${CSS.LengthPercentage})`;
 export type TrackBreadth = CSS.LengthPercentage | FlexFactor | 'min-content' | 'max-content' | 'auto' | CSS.Length;
 export type MinMax = `minmax(${InflexibleBreadth}, ${TrackBreadth})`;
-export type TrackSize = TrackBreadth | MinMax | FitContent;
+export type TrackSize = TrackBreadth | MinMax | FitContent | CSS.CustomProp;
 export type LineNames = `[${string}]`;
 
 export type GridTemplateRows = '';

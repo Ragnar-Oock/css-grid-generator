@@ -34,3 +34,5 @@ export const LenghtUnit = [
 export type Length = `${number}${typeof LenghtUnit[number]}`;
 
 export type LengthPercentage = `${number}%`;
+
+export type CustomProp = `var(--${string})` | `var(--${string},${string})`;

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { incrementString } from '../../helper/incrementable-string.helper';
 import { LineNames, TrackSize } from '../../types/grid.type';
+import BorderlessInput from "../inputs/borderless-input.vue";
 
 
 const name = defineModel<LineNames>('name');
@@ -23,13 +24,12 @@ function incrementValue(increment: number) {
 			:style="{visibility: name ? 'visible' : 'hidden'}"
 			v-tippy="{content: name}"
 			>|</span>
-			<input 
-				class="size"
-				placeholder="auto"
-				type="text"
-				:id="id"
+			<BorderlessInput
 				v-model="width"
-				
+				class="size"
+
+				placeholder="auto"
+				:id="id"
 				aria-label="column width"
 	
 				@keydown.up.exact="incrementValue(1)"
@@ -38,7 +38,7 @@ function incrementValue(increment: number) {
 				@keydown.down.shift="incrementValue(-0.1)"
 				@keydown.up.alt="incrementValue(10)"
 				@keydown.down.alt="incrementValue(-10)"
-			>
+			/>
 	</div>
 </template>
 
@@ -57,17 +57,7 @@ function incrementValue(increment: number) {
 	}
 	.size {
 		grid-area: size;
-		min-width: unset;
-		border: none;
-		padding: none;
-		background-color: transparent;
-		font-family: monospace;
-		color: var(--text-color);
-
-		&:focus {
-			outline: none;
-			color: #b0b;
-		}
+		
 	}
 }
 </style>

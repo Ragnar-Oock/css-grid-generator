@@ -1,17 +1,17 @@
 <script setup lang="ts">
 	import { Ref, computed, onMounted, onUnmounted, provide, ref } from "vue";
-import { getAreasOnLine, makeArea } from "../helper/area.helper";
+import { makeArea } from "../helper/area.helper";
 import { serializeExplicitTrackList, serializeTrack } from "../helper/css-normalize";
 import { useGrid } from "../stores/grid.store";
 import { Coord, isSameCoord, isSnappedToGrid, useMousePosition } from "../stores/mouse-position.store";
 import { ExplicitTrack, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "../types/grid.type";
 import { OneOrMore } from "../types/helper.type";
 import { Interaction } from "../types/interaction.type";
-import GridHeadColumn from "./tracks/GridHeadColumn.vue";
-import GridHeadRow from "./tracks/GridHeadRow.vue";
 import GridItem from './GridItem.vue';
 import DevTools from './devtools/DevTools.vue';
 import MousePosition from './devtools/MousePosition.vue';
+import GridHeadColumn from "./tracks/GridHeadColumn.vue";
+import GridHeadRow from "./tracks/GridHeadRow.vue";
 
 	const grid = useGrid();
 

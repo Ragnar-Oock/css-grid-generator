@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { incrementString } from '../../helper/incrementable-string.helper';
-import { LineNames, TrackSize } from '../../types/grid.type';
-import TrackAutoCompleteList from './TrackAutoCompleteList.vue';
+import { TrackSize } from '../../types/grid.type';
 
 
-const name = defineModel<LineNames>('name');
 const width = defineModel<TrackSize>('width', {required: true});
 
 const id = crypto.randomUUID();
@@ -16,16 +14,13 @@ function incrementValue(increment: number) {
 
 <template>
 	<label :for="id" class="grid-row-head">
-		<span class="track" tabindex="0" :style="{visibility: name ? 'visible' : 'hidden'}">|<span class="tooltip">{{name}}</span></span>
-		<div class="label-text">
-			row height 
-		</div>
 		<input
 			placeholder="auto"
 			type="text"
 			:id="id"
 			v-model="width"
 			:list="'list'+id"
+			aria-label="row height"
 			@keydown.up.exact="incrementValue(1)"
 			@keydown.down.exact="incrementValue(-1)"
 			@keydown.up.shift="incrementValue(0.1)"
@@ -51,9 +46,9 @@ function incrementValue(increment: number) {
 	.grid-row-head {
 		display: grid;
 		grid-template: 
-			'track label' auto
-			'. input' auto
-		/ auto 1fr;
+			'track' auto
+			'input' 1fr
+		/ auto;
 		.label-text {
 			grid-area: label;
 			transition: opacity 300ms ease-in-out;
@@ -71,7 +66,6 @@ function incrementValue(increment: number) {
 			grid-area: track;
 			position: relative;
 			display: inline block;
-			aspect-ratio: 1 / 1;
 			background-color: #fff;
 			color: red;
 			.tooltip {
