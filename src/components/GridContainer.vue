@@ -1,10 +1,10 @@
 <script setup lang="ts">
-	import { Ref, computed, onMounted, onUnmounted, provide, ref } from "vue";
+	import { computed, onMounted, onUnmounted, provide, Ref, ref } from "vue";
 import { makeArea } from "../helper/area.helper";
 import { serializeExplicitTrackList, serializeTrack } from "../helper/css-normalize";
 import { useGrid } from "../stores/grid.store";
 import { Coord, isSameCoord, isSnappedToGrid, useMousePosition } from "../stores/mouse-position.store";
-import { ExplicitTrack, containerSymbol, type ExplicitRowTrackObj, type ExplicitTrackList } from "../types/grid.type";
+import { containerSymbol, ExplicitTrack, type ExplicitRowTrackObj, type ExplicitTrackList } from "../types/grid.type";
 import { OneOrMore } from "../types/helper.type";
 import { Interaction } from "../types/interaction.type";
 import GridItem from './GridItem.vue';
@@ -16,7 +16,6 @@ import GridHeadRow from "./tracks/GridHeadRow.vue";
 	const grid = useGrid();
 
 	// #region columns
-
 	const effectiveColumnExplicitTrackList = computed<ExplicitTrackList>(() => [
 		...(grid.columns.slice(0, -1) as OneOrMore<ExplicitTrack>),
 		{
@@ -26,31 +25,27 @@ import GridHeadRow from "./tracks/GridHeadRow.vue";
 		{}
 	])
 	
-	const userColumnExplicitTrackList = computed<ExplicitTrackList>(() => [
-		...(grid.columns.slice(0, -1) as OneOrMore<ExplicitTrack>),
-		{
-			lineNames: (grid.columns as ExplicitTrack[]).at(-1)?.lineNames,
-		}
-	])
 
 	// #endregion
 	
 	// #region rows
 
-	const rowTracks = computed(() => {
-		const tracks: ExplicitRowTrackObj[] = grid.rows.map((row, index) => {
-			const areas = grid.templateAreas[index]!.map(area => area?.area ?? '.');
-			areas.push('labels-row');
-			return { ...row, areas };
-		});
-		tracks.push({
-			lineNamesStart: '',
-			trackSize: 'auto',
-			areas: [...Array.from({length: grid.numberOfColumns}, ()=> ('labels-column')), '.'],
-			lineNamesEnd: ''
-		})
-		return tracks;
-	})
+	const rowTracks = computed<ExplicitRowTrackObj[]>(() => (
+		[
+			...grid.rows
+			.map((row, index) => {
+				const areas = grid.templateAreas[index]!.map(area => area?.area ?? '.');
+				areas.push('labels-row');
+				return { ...row, areas };
+			}),
+			{
+				lineNamesStart: '',
+				trackSize: 'auto',
+				areas: [...Array.from({length: grid.numberOfColumns}, ()=> ('labels-column')), '.'],
+				lineNamesEnd: ''
+			}
+		]
+	));
 
 	const userRowTracks = computed({
 		get: () => grid.rows.map((row, index) => ({
@@ -72,14 +67,14 @@ import GridHeadRow from "./tracks/GridHeadRow.vue";
 
 	// #region templates
 
-	const template = computed( () => `
+	const effectiveTemplate = computed( () => `
 ${rowTracks.value.map(serializeTrack).join('\n')}
 / ${serializeExplicitTrackList(effectiveColumnExplicitTrackList.value)}
 	`);
 
 	const userTemplate = computed( () => `
 ${userRowTracks.value.map(serializeTrack).join('\n')}
-/ ${serializeExplicitTrackList(userColumnExplicitTrackList.value)}
+/ ${serializeExplicitTrackList(grid.columns)}
 	`);
 
 	// #endregion
@@ -125,7 +120,7 @@ ${userRowTracks.value.map(serializeTrack).join('\n')}
 		ref="container"
 		class="grid-wrapper" 
 		:style="{
-			'grid-template': template,
+			'grid-template': effectiveTemplate,
 		}"
 	>
 		<MousePosition/>
@@ -153,7 +148,7 @@ grid-template: {{ userTemplate }}
 	</pre>
 
 	<pre class="copiable">
-actual grid-template : {{ template }}
+actual grid-template : {{ effectiveTemplate }}
 	</pre>
 </template>
 
@@ -168,7 +163,7 @@ actual grid-template : {{ template }}
 		overflow: auto;
 		height: 100%;
 		width: 100%;
-		max-width: 1000px;
+		max-width: 1200px;
 		max-height: 800px;
 		padding: 1rem;
 	}

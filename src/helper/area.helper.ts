@@ -55,3 +55,17 @@ export function makeArea({x, y}: Coord): GridArea {
 export function getAreaIndex(area: GridArea, nbCols: number): number {
 	return area.columnStart + (area.rowStart - 1) * nbCols;
 }
+
+/**
+ * check if `subject` is overlapping `target` in any way
+ * @param subject the area to test
+ * @param target the area to compaer to
+ */
+export function isOverlaping(subject: GridArea, target: GridArea): boolean {
+	return (
+		subject.columnStart < target.columnEnd &&
+		target.columnStart < subject.columnEnd &&
+		subject.rowStart < target.rowEnd &&
+		target.rowStart < subject.rowEnd
+	)
+}

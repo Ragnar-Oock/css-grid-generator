@@ -250,6 +250,7 @@ import { Interaction } from '../types/interaction.type';
 
 		--area-name-forground: #333;
 		--area-name-background: #fff;
+		--handle-size: minmax(auto, 15px);
 
 		.area-name {
 			grid-area: name;
@@ -259,8 +260,7 @@ import { Interaction } from '../types/interaction.type';
 			border-radius: 2px;
 			place-self: center;
 		}
-
-		--handle-size: minmax(auto, 15px);
+		
 		.resize-handle {
 			background: #fafafa;
 
