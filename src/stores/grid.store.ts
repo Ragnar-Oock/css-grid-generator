@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import { getAllAreasByCell, getAreaByCell, getAreaIndex, isOverlaping } from "../helper/area.helper";
+import { getAreaByCell, getAreaIndex, isOverlaping } from "../helper/area.helper";
 import { makeGrid } from "../helper/array.helper";
 import { getRandomColor } from "../helper/color.helper";
 import { isString } from "../helper/type.helper";
@@ -59,8 +59,7 @@ export const useGrid = defineStore('grid', () => {
 	 * name to the line names if the area is overlaping another one and can't be put 
 	 * in the area string
 	 * 
-	 * @param columnLineIndex index of the column line (not track)
-	 * @todo
+	 * @param columnLineIndex index of the column line (1 indexed)
 	 */
 	function columnLineNamesFromAreas(columnLineIndex: number): Tracknames {
 		const areaArray = Array.from(grid2d.value[1]);
@@ -79,7 +78,7 @@ export const useGrid = defineStore('grid', () => {
 			userColumnLineNames
 				.value
 				.map((userLineNames, index) => ({
-					lineNames: formatLineNames([...userLineNames, ...columnLineNamesFromAreas(index)]),
+					lineNames: formatLineNames([...userLineNames, ...columnLineNamesFromAreas(index + 1)]),
 					trackSize: columnTracks.value[index] ?? 'auto'
 				})) as ExplicitTrackList,
 		);
@@ -119,38 +118,35 @@ export const useGrid = defineStore('grid', () => {
 	const grid2d = computed<[cells: (GridArea|null)[][], overlaping: GridArea[]]>(() => {
 		const nbCols = numberOfColumns.value;
 		const nbRows = numberOfRows.value;
-		let allAreas: GridArea[] = Array.from(areas.value).sort((a, b) => getAreaIndex(a, nbCols) - getAreaIndex(b, nbCols));
-		let noOverlap = Array.from(allAreas);
-		const results = new Set<GridArea>();
-		const overlapingAreaList: GridArea[] = [];
+		let allAreas: GridArea[] = Array
+			.from(areas.value)
+			.sort((a, b) => getAreaIndex(a, nbCols) - getAreaIndex(b, nbCols));
+		let overlaping: GridArea[] = []; 
+		let noOverlap: GridArea[] = Array.from(allAreas);
+		const results: GridArea[] = [];
 
 		function overlapsPreviousResult(area: GridArea): boolean {
-			return Array
-			.from(results)
-			.some(previousResult => area !== previousResult && isOverlaping(area, previousResult))
+			return results.some(previousResult => area !== previousResult && isOverlaping(area, previousResult))
 		}
 
 		const cells = makeGrid(
 			nbCols,
 			nbRows, 
-			(x, y) => {				
-				// find the first area that doesn't overlap any other and that fit the cell
-				const result = getAreaByCell(noOverlap, x, y);
-				// find all the areas that fit the cell
-				const overlaping = getAllAreasByCell(allAreas, x, y)
-				// remove the result from the overlaping areas
-					.filter(area => area !== result || overlapsPreviousResult(area));
+			(x, y) => {			
+				let result = getAreaByCell(results, x, y) ?? getAreaByCell(noOverlap, x, y);
 
-				// remove the others from the list of areas that don't overlap (because if they are in that same area they do overlap)
-				noOverlap = noOverlap.filter(area => !overlaping.includes(area) || overlapsPreviousResult(area));
-				// add the overlaping areas to the list of overlaping areas
-				overlapingAreaList.push(...overlaping);
+				({noOverlap = [], overlaping = []} = Object.groupBy(
+					allAreas, 
+					area => (area !== result && overlapsPreviousResult(area)) ? 'overlaping' : 'noOverlap'
+				));
+				
 
 				if (result === null || overlapsPreviousResult(result)) {
 					return null;
 				}
-				
-				results.add(result);
+				if (!results.includes(result)) {
+					results.push(result);
+				}
 
 				// return the area we found at the start
 				return result;
@@ -159,7 +155,7 @@ export const useGrid = defineStore('grid', () => {
 
 		return [
 			cells, 
-			Array.from(new Set(overlapingAreaList))
+			overlaping
 		];
 	})
 
